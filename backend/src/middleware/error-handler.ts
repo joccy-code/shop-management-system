@@ -1,19 +1,10 @@
 import type { NextFunction, Request, Response } from "express";
 import { ZodError } from "zod";
 import { sendError } from "../lib/api-response.js";
+import { AppError } from "../lib/app-error.js";
 import { logger } from "../lib/logger.js";
 
-export class AppError extends Error {
-  constructor(
-    public readonly statusCode: number,
-    public readonly code: string,
-    message: string,
-    public readonly details?: unknown,
-  ) {
-    super(message);
-    this.name = "AppError";
-  }
-}
+export { AppError } from "../lib/app-error.js";
 
 export function notFoundHandler(_req: Request, res: Response): void {
   sendError(res, 404, "NOT_FOUND", "The requested resource was not found.");
