@@ -1,0 +1,59 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Source Sans 3 Variable", "Source Sans 3", "Segoe UI", "Noto Sans", sans-serif;
+  --font-display: "Source Sans 3 Variable", "Source Sans 3", "Segoe UI", "Noto Sans", sans-serif;
+
+  --color-brand-50: #f0fdf4;
+  --color-brand-100: #dcfce7;
+  --color-brand-200: #bbf7d0;
+  --color-brand-500: #22c55e;
+  --color-brand-600: #16a34a;
+  --color-brand-700: #15803d;
+  --color-brand-800: #166534;
+
+  --color-ink-900: #111827;
+  --color-ink-700: #374151;
+  --color-ink-500: #6b7280;
+  --color-ink-300: #d1d5db;
+  --color-ink-100: #f3f4f6;
+  --color-ink-50: #f8faf9;
+
+  --color-danger-600: #dc2626;
+  --color-warning-600: #d97706;
+
+  --shadow-soft: 0 1px 2px rgb(17 24 39 / 0.06), 0 1px 3px rgb(17 24 39 / 0.08);
+}
+
+@layer base {
+  html {
+    font-family: var(--font-sans);
+    color: var(--color-ink-900);
+    background:
+      radial-gradient(circle at top left, rgb(220 252 231 / 0.7), transparent 42%),
+      linear-gradient(180deg, #f8faf9 0%, #f3f4f6 100%);
+    min-height: 100%;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100dvh;
+    background: transparent;
+  }
+
+  #root {
+    min-height: 100dvh;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-brand-600);
+    outline-offset: 2px;
+  }
+}
