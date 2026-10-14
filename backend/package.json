@@ -21,6 +21,7 @@
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "decimal.js": "^10.6.0",
+    "dotenv": "^18.0.8",
     "express": "^5.1.0",
     "helmet": "^8.1.0",
     "pino": "^9.11.0",

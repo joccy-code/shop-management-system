@@ -1,3 +1,4 @@
+import "./load-dotenv.js";
 import { createApp } from "./app.js";
 import { loadEnv } from "./lib/env.js";
 import { logger } from "./lib/logger.js";
