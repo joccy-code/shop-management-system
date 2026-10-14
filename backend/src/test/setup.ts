@@ -1,5 +1,6 @@
 import { resetEnvCache } from "../lib/env.js";
 
+// Tests set process.env directly and do not require a .env file.
 process.env.NODE_ENV = "test";
 process.env.PORT = process.env.PORT ?? "3001";
 process.env.APP_NAME = process.env.APP_NAME ?? "Shop Manager";
