@@ -86,7 +86,11 @@ For local schema iteration you can also use:
 npm run prisma:migrate -w backend
 ```
 
-A development seed script will be added in Phase 2 with auth and sample products. Phase 1 intentionally does not create login credentials.
+### 5. Create your shop account
+
+Phase 1 shipped no login credentials. As of Phase 2, open the app and use
+**Create one** on the login screen to register a shop and its first owner
+account (shop name, your name, phone number, and password).
 
 ## Development
 
@@ -120,7 +124,7 @@ npm run build -w backend
 npm run build -w frontend
 ```
 
-## Current status (Phase 1)
+## Current status (Phase 2)
 
 Implemented:
 
@@ -128,17 +132,18 @@ Implemented:
 - Prisma schema and initial migration for shops, users, sessions, products, sales, expenses, customers, and subscription placeholders
 - Health and readiness endpoints
 - Mobile bottom navigation and desktop sidebar shell
-- Empty page shells for Home, Sales, Products, Reports, Expenses, Customers, and Settings
 - English message dictionary for future localization
+- **Phone + password authentication**: register a shop and owner account, sign in, sign out, and a session-backed `/auth/me` check that gates every in-app route. Sessions are random tokens hashed server-side and stored with an expiry; phone numbers are normalized (`0912345678` and `+251912345678` resolve to the same account).
+- **Product catalog CRUD**: create, edit, and archive products scoped to the signed-in shop, with categories you can create inline from the product form.
+- **Stock adjustments**: every stock change (initial stock on create, or a manual adjustment) is recorded as an auditable inventory movement; adjustments cannot drive stock negative, and products at or below their low-stock threshold are flagged in the UI.
 
 Not implemented yet:
 
-- Authentication
-- Product CRUD
 - Sales checkout
 - Expenses and customer credit workflows
 - Live dashboard statistics
 - PWA offline sales
+- SMS-based OTP delivery (phone sign-in currently uses a password, since no SMS provider is configured in this environment)
 
 ## Troubleshooting
 
