@@ -1,5 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { LocaleProvider } from "@/i18n/LocaleProvider";
 import { AppShell } from "@/components/layout/AppShell";
 import { RequireAuth } from "@/features/auth/RequireAuth";
 import { CustomersPage } from "@/pages/CustomersPage";
@@ -25,6 +26,7 @@ const queryClient = new QueryClient({
 export function App() {
   return (
     <QueryClientProvider client={queryClient}>
+      <LocaleProvider>
       <BrowserRouter>
         <Routes>
           <Route path="login" element={<LoginPage />} />
@@ -43,6 +45,7 @@ export function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
+      </LocaleProvider>
     </QueryClientProvider>
   );
 }

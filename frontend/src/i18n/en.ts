@@ -11,6 +11,33 @@ export const en = {
     more: "More",
     menu: "Menu",
     closeMenu: "Close menu",
+    primary: "Primary",
+  },
+  shell: {
+    workspace: "Shop workspace",
+    mobileWorkspace: "Mobile shop workspace",
+  },
+  language: {
+    label: "Language",
+    help: "Choose the language used across the shop.",
+    english: "English",
+    amharic: "አማርኛ",
+  },
+  validation: {
+    phone: "Enter your phone number.",
+    password: "Enter your password.",
+    shopName: "Enter your shop name.",
+    displayName: "Enter your name.",
+    passwordLength: "Use at least 8 characters.",
+    confirmPassword: "Confirm your password.",
+    passwordMismatch: "Passwords do not match.",
+    productName: "Enter a product name.",
+    required: "{label} is required.",
+    number: "{label} must be a number.",
+    negative: "{label} cannot be negative.",
+    quantity: "Enter a quantity.",
+    nonZero: "Enter a non-zero number.",
+    reason: "Enter a reason.",
   },
   common: {
     loading: "Loading…",
@@ -174,6 +201,12 @@ export const en = {
     moreBalances: "more customers with a balance",
     moreLowStock: "more low-stock products",
     loadError: "Could not load this report. Please try again.",
+    profitNote:
+      "Estimated gross profit is selling price minus unit cost on non-voided sales, including credit sales, because the goods left the shop. Collected cash is only the amount actually paid. Estimated net profit subtracts recorded operating expenses and excludes taxes, inventory adjustments, unpaid bills, and voided records. It is not formal accounting profit.",
+    inventoryNote:
+      "Stock cost value uses the current unit cost. Potential selling value uses the current selling price. Neither figure is a sale.",
+    balanceNote:
+      "Outstanding balance is the unpaid portion of non-voided credit sales. Repayments reduce it. Unpaid sales are not counted as collected cash.",
   },
   expenses: {
     title: "Expenses",
@@ -230,4 +263,8 @@ export const en = {
   },
 } as const;
 
-export type Messages = typeof en;
+type DeepString<T> = T extends string
+  ? string
+  : { readonly [K in keyof T]: DeepString<T[K]> };
+
+export type Messages = DeepString<typeof en>;

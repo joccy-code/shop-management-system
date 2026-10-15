@@ -1,8 +1,9 @@
 import { Navigate, Outlet, useLocation } from "react-router-dom";
-import { t } from "@/i18n";
+import { t, useMessages } from "@/i18n";
 import { useAuth } from "./useAuth";
 
 export function RequireAuth() {
+  useMessages();
   const { user, isLoading, isUnauthenticated } = useAuth();
   const location = useLocation();
 

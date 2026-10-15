@@ -9,7 +9,8 @@ import {
   Wallet,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
-import { getAppName, t } from "@/i18n";
+import { LanguageSwitch } from "@/components/i18n/LanguageSwitch";
+import { getAppName, t, useMessages } from "@/i18n";
 
 const primaryItems = [
   { to: "/", labelKey: "home", icon: Home, end: true },
@@ -33,6 +34,7 @@ function linkClass({ isActive }: { isActive: boolean }) {
 }
 
 export function Sidebar() {
+  useMessages();
   const messages = t();
   const appName = getAppName();
 
@@ -44,11 +46,11 @@ export function Sidebar() {
         </span>
         <div>
           <p className="text-base font-bold text-ink-900">{appName}</p>
-          <p className="text-xs text-ink-500">Shop workspace</p>
+          <p className="text-xs text-ink-500">{messages.shell.workspace}</p>
         </div>
       </div>
 
-      <nav aria-label="Primary" className="flex-1 space-y-6 overflow-y-auto p-4">
+      <nav aria-label={messages.nav.primary} className="flex-1 space-y-6 overflow-y-auto p-4">
         <ul className="space-y-1">
           {primaryItems.map((item) => {
             const Icon = item.icon;
@@ -82,6 +84,12 @@ export function Sidebar() {
           </ul>
         </div>
       </nav>
+      <div className="border-t border-ink-300/70 p-4">
+        <p className="mb-2 px-1 text-xs font-semibold uppercase tracking-wide text-ink-500">
+          {messages.language.label}
+        </p>
+        <LanguageSwitch />
+      </div>
     </aside>
   );
 }

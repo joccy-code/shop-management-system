@@ -1,10 +1,13 @@
 import { Outlet } from "react-router-dom";
-import { getAppName } from "@/i18n";
+import { LanguageSwitch } from "@/components/i18n/LanguageSwitch";
+import { getAppName, t, useMessages } from "@/i18n";
 import { BottomNav } from "./BottomNav";
 import { MoreMenu } from "./MoreMenu";
 import { Sidebar } from "./Sidebar";
 
 export function AppShell() {
+  useMessages();
+  const messages = t();
   const appName = getAppName();
 
   return (
@@ -15,9 +18,12 @@ export function AppShell() {
           <div className="mx-auto flex max-w-3xl items-center justify-between gap-3 px-4 py-3">
             <div>
               <p className="text-lg font-bold text-ink-900">{appName}</p>
-              <p className="text-xs text-ink-500">Mobile shop workspace</p>
+              <p className="text-xs text-ink-500">{messages.shell.mobileWorkspace}</p>
             </div>
-            <MoreMenu />
+            <div className="flex shrink-0 items-center gap-2">
+              <LanguageSwitch compact />
+              <MoreMenu />
+            </div>
           </div>
         </header>
 

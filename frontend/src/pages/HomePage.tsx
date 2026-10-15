@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { fetchDashboard } from "@/features/reports/api";
-import { t } from "@/i18n";
+import { t, useMessages } from "@/i18n";
 import { formatDateTime, formatMoney, todayInputValue } from "@/lib/format";
 
 function Stat({ label, value }: { label: string; value: string }) {
@@ -16,6 +16,7 @@ function Stat({ label, value }: { label: string; value: string }) {
 }
 
 export function HomePage() {
+  useMessages();
   const messages = t().home;
   const today = todayInputValue();
   const monthStart = `${today.slice(0, 7)}-01`;

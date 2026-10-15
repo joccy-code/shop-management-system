@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Source Sans 3 Variable", "Source Sans 3", "Segoe UI", "Noto Sans", sans-serif;
-  --font-display: "Source Sans 3 Variable", "Source Sans 3", "Segoe UI", "Noto Sans", sans-serif;
+  --font-sans: "Source Sans 3 Variable", "Source Sans 3", "Noto Sans Ethiopic", "Segoe UI", "Noto Sans", sans-serif;
+  --font-display: "Source Sans 3 Variable", "Source Sans 3", "Noto Sans Ethiopic", "Segoe UI", "Noto Sans", sans-serif;
 
   --color-brand-50: #f0fdf4;
   --color-brand-100: #dcfce7;
@@ -33,6 +33,10 @@
       radial-gradient(circle at top left, rgb(220 252 231 / 0.7), transparent 42%),
       linear-gradient(180deg, #f8faf9 0%, #f3f4f6 100%);
     min-height: 100%;
+  }
+
+  html[lang="am"] {
+    line-height: 1.6;
   }
 
   body {

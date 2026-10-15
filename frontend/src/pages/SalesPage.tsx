@@ -10,7 +10,7 @@ import { listProducts } from "@/features/products/api";
 import type { Product } from "@/features/products/types";
 import { createSale, listSales, voidSale } from "@/features/sales/api";
 import type { PaymentMethod, Sale } from "@/features/sales/types";
-import { t } from "@/i18n";
+import { t, useMessages } from "@/i18n";
 import { ApiError } from "@/lib/api";
 import { formatDateTime, formatMoney } from "@/lib/format";
 import { addMoney, compareMoney, multiplyMoney } from "@/lib/money";
@@ -39,6 +39,7 @@ function errorText(error: unknown, fallback: string): string {
 }
 
 export function SalesPage() {
+  useMessages();
   const messages = t().sales;
   const queryClient = useQueryClient();
   const [searchInput, setSearchInput] = useState("");

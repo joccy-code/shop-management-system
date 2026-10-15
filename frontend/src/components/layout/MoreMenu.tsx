@@ -2,7 +2,7 @@ import { Menu, Settings, Users, Wallet, X } from "lucide-react";
 import { useEffect, useId, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/Button";
-import { t } from "@/i18n";
+import { t, useMessages } from "@/i18n";
 
 const items = [
   { to: "/expenses", labelKey: "expenses", icon: Wallet },
@@ -11,6 +11,7 @@ const items = [
 ] as const;
 
 export function MoreMenu() {
+  useMessages();
   const [open, setOpen] = useState(false);
   const location = useLocation();
   const titleId = useId();
