@@ -129,4 +129,25 @@ describe("auth routes", () => {
       .set("Cookie", cookie);
     expect(meResponse.status).toBe(401);
   });
+
+  it("changes the password and rejects the previous one", async () => {
+    const app = createApp();
+    const { cookie, phone, password } = await registerAccount(app);
+
+    const changeResponse = await request(app)
+      .post("/api/v1/auth/change-password")
+      .set("Cookie", cookie)
+      .send({ currentPassword: password, newPassword: "a-new-password" });
+    expect(changeResponse.status).toBe(200);
+
+    const oldLogin = await request(app)
+      .post("/api/v1/auth/login")
+      .send({ phone, password });
+    expect(oldLogin.status).toBe(401);
+
+    const newLogin = await request(app)
+      .post("/api/v1/auth/login")
+      .send({ phone, password: "a-new-password" });
+    expect(newLogin.status).toBe(200);
+  });
 });

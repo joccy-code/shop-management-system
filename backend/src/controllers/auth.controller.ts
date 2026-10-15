@@ -2,9 +2,14 @@ import type { Request, Response } from "express";
 import type { Shop, User } from "@prisma/client";
 import { loadEnv } from "../lib/env.js";
 import { sendSuccess } from "../lib/api-response.js";
-import { loginSchema, registerSchema } from "../schemas/auth.schema.js";
+import {
+  changePasswordSchema,
+  loginSchema,
+  registerSchema,
+} from "../schemas/auth.schema.js";
 import {
   authenticate,
+  changePassword,
   createSession,
   getAuthenticatedShopAndUser,
   registerShopOwner,
@@ -77,6 +82,15 @@ export async function postLogout(req: Request, res: Response): Promise<void> {
 
   clearSessionCookie(res);
   sendSuccess(res, { loggedOut: true });
+}
+
+export async function postChangePassword(
+  req: Request,
+  res: Response,
+): Promise<void> {
+  const input = changePasswordSchema.parse(req.body);
+  await changePassword(req.auth!.userId, input);
+  sendSuccess(res, { updated: true });
 }
 
 export async function getMe(req: Request, res: Response): Promise<void> {

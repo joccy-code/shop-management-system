@@ -124,7 +124,7 @@ npm run build -w backend
 npm run build -w frontend
 ```
 
-## Current status (Phase 2)
+## Current status (Phases 1–7)
 
 Implemented:
 
@@ -136,14 +136,17 @@ Implemented:
 - **Phone + password authentication**: register a shop and owner account, sign in, sign out, and a session-backed `/auth/me` check that gates every in-app route. Sessions are random tokens hashed server-side and stored with an expiry; phone numbers are normalized (`0912345678` and `+251912345678` resolve to the same account).
 - **Product catalog CRUD**: create, edit, and archive products scoped to the signed-in shop, with categories you can create inline from the product form.
 - **Stock adjustments**: every stock change (initial stock on create, or a manual adjustment) is recorded as an auditable inventory movement; adjustments cannot drive stock negative, and products at or below their low-stock threshold are flagged in the UI.
+- **Sales checkout**: search products, confirm payment (cash, bank transfer, Telebirr, other, or credit), and save the sale in one database transaction. Stock is reduced only when the sale commits. Repeating the same checkout with the same idempotency key does not create a second sale. A sale can be voided, which returns stock.
+- **Expenses and customer credit**: record expenses and void them instead of deleting them. Credit and partial sales require a customer. Repayments cannot exceed the outstanding balance.
+- **Dashboard and reports**: today's sales, this month's sales, expenses, estimated profit, low stock, a simple sales trend, best sellers, inventory value, and outstanding customer balances. All figures are queried from the database.
+- **Installable PWA**: web app manifest, icons, and a service worker that caches the app shell and static files. API responses are not cached. Saving a sale still requires a connection.
+- **Production hardening**: login and registration rate limits, an origin check on cross-site posts, password change, paginated lists, and a [release checklist](docs/release-checklist.md).
 
 Not implemented yet:
 
-- Sales checkout
-- Expenses and customer credit workflows
-- Live dashboard statistics
-- PWA offline sales
-- SMS-based OTP delivery (phone sign-in currently uses a password, since no SMS provider is configured in this environment)
+- Full offline sale sync. The design is in [docs/offline-sales.md](docs/offline-sales.md). If the network fails, the app says a connection is required and does not pretend the sale was saved.
+- SMS-based OTP delivery (phone sign-in uses a password, since no SMS provider is configured)
+- Subscription billing. The subscription table remains unused and there is no paywall.
 
 ## Troubleshooting
 
@@ -159,7 +162,10 @@ Start the backend on port 3001. The Vite proxy expects that port.
 ## Documentation
 
 - [Architecture](docs/architecture.md)
+- [API](docs/api.md)
 - [Deployment notes](docs/deployment.md)
+- [Release checklist](docs/release-checklist.md)
+- [Offline sales plan](docs/offline-sales.md)
 
 ## License
 
