@@ -1,11 +1,11 @@
 import { useEffect, type ReactNode } from "react";
-import { getAppName, useLocale } from "./index";
+import { applyDocumentLanguage, getAppName, useLocale } from "./index";
 
 export function LocaleProvider({ children }: { children: ReactNode }) {
   const locale = useLocale();
 
   useEffect(() => {
-    document.documentElement.lang = locale;
+    applyDocumentLanguage(locale);
     document.title = getAppName();
   }, [locale]);
 

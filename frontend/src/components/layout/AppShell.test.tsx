@@ -74,5 +74,12 @@ describe("AppShell", () => {
     });
     expect(screen.getAllByRole("link", { name: "መነሻ" }).length).toBeGreaterThan(0);
     expect(screen.getByText("የሱቅ የስራ ቦታ")).toBeInTheDocument();
+    expect(document.documentElement.lang).toBe("am");
+    expect(document.documentElement.getAttribute("translate")).toBe("no");
+    expect(screen.getAllByRole("button", { name: "አማርኛ" })[0]).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    expect(localStorage.getItem("shop-manager.locale")).toBe("am");
   });
 });

@@ -30,9 +30,25 @@ function readStoredLocale(): Locale {
 
 let currentLocale: Locale = readStoredLocale();
 
-if (typeof document !== "undefined") {
-  document.documentElement.lang = currentLocale;
+function applyDocumentLanguage(locale: Locale): void {
+  if (typeof document === "undefined") {
+    return;
+  }
+  const root = document.documentElement;
+  root.lang = locale;
+  root.setAttribute("translate", "no");
+  root.classList.add("notranslate");
+  document.body?.setAttribute("translate", "no");
+  document.body?.classList.add("notranslate");
+  if (!document.head.querySelector('meta[name="google"][content="notranslate"]')) {
+    const meta = document.createElement("meta");
+    meta.setAttribute("name", "google");
+    meta.setAttribute("content", "notranslate");
+    document.head.prepend(meta);
+  }
 }
+
+applyDocumentLanguage(currentLocale);
 
 function subscribeLocale(listener: () => void): () => void {
   listeners.add(listener);
@@ -49,13 +65,13 @@ export function setLocale(locale: Locale): void {
   } catch {
     // The choice still applies for this visit.
   }
-  if (typeof document !== "undefined") {
-    document.documentElement.lang = locale;
-  }
+  applyDocumentLanguage(locale);
   for (const listener of listeners) {
     listener();
   }
 }
+
+export { applyDocumentLanguage };
 
 export function getLocale(): Locale {
   return currentLocale;
