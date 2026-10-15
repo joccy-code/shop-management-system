@@ -5,6 +5,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { Input } from "@/components/ui/Input";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Select } from "@/components/ui/Select";
+import { showToast } from "@/components/ui/toast";
 import {
   createCustomer,
   getCustomer,
@@ -30,7 +31,6 @@ export function CustomersPage() {
   const [saleId, setSaleId] = useState("");
   const [amount, setAmount] = useState("");
   const [method, setMethod] = useState("CASH");
-  const [pageError, setPageError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [createdId, setCreatedId] = useState<string | null>(null);
 
@@ -46,7 +46,6 @@ export function CustomersPage() {
   });
 
   const saveCustomer = async () => {
-    setPageError(null);
     setSubmitting(true);
     try {
       const created = await createCustomer({
@@ -73,21 +72,13 @@ export function CustomersPage() {
       });
       await queryClient.invalidateQueries({ queryKey: ["customers"] });
     } catch (error) {
-      setPageError(error instanceof ApiError ? error.message : t().common.saveError);
+      showToast(error instanceof ApiError ? error.message : t().common.saveError);
     } finally {
       setSubmitting(false);
     }
   };
 
-  const removeSelectedCustomer = async (customerId: string, outstanding: string) => {
-    if (Number(outstanding) > 0) {
-      setPageError(messages.stillOwes);
-      return;
-    }
-    if (typeof window !== "undefined" && !window.confirm(messages.removeConfirm)) {
-      return;
-    }
-    setPageError(null);
+  const performRemove = async (customerId: string) => {
     setSubmitting(true);
     try {
       await removeCustomer(customerId);
@@ -96,8 +87,9 @@ export function CustomersPage() {
       }
       await queryClient.invalidateQueries({ queryKey: ["customers"] });
       await queryClient.invalidateQueries({ queryKey: ["customer", customerId] });
+      showToast(messages.removed, { tone: "success" });
     } catch (error) {
-      setPageError(
+      showToast(
         error instanceof ApiError && error.code === "CUSTOMER_HAS_BALANCE"
           ? messages.stillOwes
           : error instanceof ApiError
@@ -109,11 +101,27 @@ export function CustomersPage() {
     }
   };
 
+  const removeSelectedCustomer = (customerId: string, outstanding: string) => {
+    if (Number(outstanding) > 0) {
+      showToast(messages.stillOwes);
+      return;
+    }
+    showToast(messages.removeConfirm, {
+      tone: "danger",
+      duration: 0,
+      action: {
+        label: messages.remove,
+        onClick: () => {
+          void performRemove(customerId);
+        },
+      },
+    });
+  };
+
   const saveRepayment = async () => {
     if (!selectedId || !saleId) {
       return;
     }
-    setPageError(null);
     setSubmitting(true);
     try {
       await recordRepayment(selectedId, { saleId, amount, method });
@@ -124,7 +132,7 @@ export function CustomersPage() {
       await queryClient.invalidateQueries({ queryKey: ["dashboard"] });
       await queryClient.invalidateQueries({ queryKey: ["sales"] });
     } catch (error) {
-      setPageError(error instanceof ApiError ? error.message : t().common.saveError);
+      showToast(error instanceof ApiError ? error.message : t().common.saveError);
     } finally {
       setSubmitting(false);
     }
@@ -145,6 +153,12 @@ export function CustomersPage() {
     }
     document.getElementById(`customer-${createdId}`)?.scrollIntoView?.({ block: "center" });
   }, [createdId, customers]);
+
+  useEffect(() => {
+    if (listError) {
+      showToast(listError);
+    }
+  }, [listError]);
   const openSales =
     detail?.sales.filter(
       (sale) => sale.status === "UNPAID" || sale.status === "PARTIALLY_PAID",
@@ -153,16 +167,6 @@ export function CustomersPage() {
   return (
     <section className="space-y-5">
       <PageHeader title={messages.headline} description={messages.body} />
-      {pageError ? (
-        <p role="alert" className="text-sm text-danger-600">
-          {pageError}
-        </p>
-      ) : null}
-      {listError ? (
-        <p role="alert" className="text-sm text-danger-600">
-          {listError}
-        </p>
-      ) : null}
 
       <Input
         label={messages.search}

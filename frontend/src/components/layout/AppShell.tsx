@@ -1,5 +1,6 @@
 import { Outlet } from "react-router-dom";
 import { LanguageSwitch } from "@/components/i18n/LanguageSwitch";
+import { Toaster } from "@/components/ui/toast";
 import { getAppName, t, useMessages } from "@/i18n";
 import { BottomNav } from "./BottomNav";
 import { MoreMenu } from "./MoreMenu";
@@ -33,6 +34,7 @@ export function AppShell() {
 
         <BottomNav />
       </div>
+      <Toaster />
     </div>
   );
 }
