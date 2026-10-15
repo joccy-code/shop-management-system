@@ -1,7 +1,8 @@
-import { render, screen } from "@testing-library/react";
+import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
+import { setLocale } from "@/i18n";
 import { AppShell } from "./AppShell";
 
 function renderShell(initialPath = "/") {
@@ -19,6 +20,13 @@ function renderShell(initialPath = "/") {
 }
 
 describe("AppShell", () => {
+  afterEach(() => {
+    act(() => {
+      setLocale("en");
+    });
+    localStorage.removeItem("shop-manager.locale");
+  });
+
   it("renders the configurable app name and primary destinations", () => {
     renderShell();
 
@@ -53,5 +61,18 @@ describe("AppShell", () => {
     expect(
       menu.querySelector('a[href="/settings"]'),
     ).toHaveTextContent("Settings");
+  });
+
+  it("switches the workspace into Amharic", async () => {
+    const user = userEvent.setup();
+    renderShell();
+
+    const amharic = screen.getAllByRole("button", { name: "አማርኛ" })[0];
+    expect(amharic).toBeDefined();
+    await act(async () => {
+      await user.click(amharic!);
+    });
+    expect(screen.getAllByRole("link", { name: "መነሻ" }).length).toBeGreaterThan(0);
+    expect(screen.getByText("የሱቅ የስራ ቦታ")).toBeInTheDocument();
   });
 });

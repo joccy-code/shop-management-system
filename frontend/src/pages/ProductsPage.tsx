@@ -17,7 +17,7 @@ import { ProductForm } from "@/features/products/ProductForm";
 import type { ProductFormValues } from "@/features/products/schemas";
 import { StockAdjustmentForm } from "@/features/products/StockAdjustmentForm";
 import type { Product } from "@/features/products/types";
-import { t } from "@/i18n";
+import { t, useMessages } from "@/i18n";
 import { ApiError } from "@/lib/api";
 import { formatMoney } from "@/lib/format";
 
@@ -28,6 +28,7 @@ type ModalState =
   | { mode: "adjust"; product: Product };
 
 export function ProductsPage() {
+  useMessages();
   const messages = t().products;
   const queryClient = useQueryClient();
   const [searchInput, setSearchInput] = useState("");

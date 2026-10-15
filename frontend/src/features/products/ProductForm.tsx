@@ -5,8 +5,8 @@ import { flushSync } from "react-dom";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
-import { t } from "@/i18n";
-import { productFormSchema, type ProductFormValues } from "./schemas";
+import { t, useMessages } from "@/i18n";
+import { createProductFormSchema, type ProductFormValues } from "./schemas";
 import type { Category, Product } from "./types";
 
 type ProductFormProps = {
@@ -26,6 +26,7 @@ export function ProductForm({
   onCancel,
   onCreateCategory,
 }: ProductFormProps) {
+  useMessages();
   const messages = t().products;
   const [categoryOptions, setCategoryOptions] = useState(categories);
   const [newCategoryName, setNewCategoryName] = useState("");
@@ -37,7 +38,8 @@ export function ProductForm({
     setValue,
     formState: { errors },
   } = useForm<ProductFormValues>({
-    resolver: zodResolver(productFormSchema),
+    resolver: (values, context, options) =>
+      zodResolver(createProductFormSchema())(values, context, options),
     defaultValues: {
       name: product?.name ?? "",
       categoryId: product?.categoryId ?? "",

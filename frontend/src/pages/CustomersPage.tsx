@@ -11,11 +11,12 @@ import {
   listCustomers,
   recordRepayment,
 } from "@/features/customers/api";
-import { t } from "@/i18n";
+import { t, useMessages } from "@/i18n";
 import { ApiError } from "@/lib/api";
 import { formatDateTime, formatMoney } from "@/lib/format";
 
 export function CustomersPage() {
+  useMessages();
   const messages = t().customers;
   const salesMessages = t().sales;
   const queryClient = useQueryClient();

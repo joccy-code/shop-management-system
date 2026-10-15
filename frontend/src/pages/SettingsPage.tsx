@@ -1,15 +1,18 @@
 import { useState } from "react";
+import { LanguageSwitch } from "@/components/i18n/LanguageSwitch";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Input } from "@/components/ui/Input";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { changePassword, logout } from "@/features/auth/api";
 import { useAuth, useInvalidateAuth } from "@/features/auth/useAuth";
-import { t } from "@/i18n";
+import { t, useMessages } from "@/i18n";
 import { ApiError } from "@/lib/api";
 
 export function SettingsPage() {
+  useMessages();
   const messages = t().settings;
+  const language = t().language;
   const authMessages = t().auth;
   const { user } = useAuth();
   const invalidateAuth = useInvalidateAuth();
@@ -53,6 +56,16 @@ export function SettingsPage() {
   return (
     <section className="space-y-5">
       <PageHeader title={messages.headline} description={messages.body} />
+
+      <div className="rounded-2xl border border-ink-300/70 bg-white p-5 shadow-soft">
+        <p className="text-xs font-semibold uppercase tracking-wide text-ink-500">
+          {language.label}
+        </p>
+        <p className="mt-1 text-sm text-ink-500">{language.help}</p>
+        <div className="mt-3">
+          <LanguageSwitch />
+        </div>
+      </div>
 
       {user ? (
         <div className="space-y-4 rounded-2xl border border-ink-300/70 bg-white p-5 shadow-soft">

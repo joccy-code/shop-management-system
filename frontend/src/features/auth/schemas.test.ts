@@ -1,14 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { loginSchema, registerSchema } from "./schemas";
+import { createLoginSchema, createRegisterSchema } from "./schemas";
 
 describe("auth schemas", () => {
   it("requires both fields for login", () => {
-    const result = loginSchema.safeParse({ phone: "", password: "" });
+    const result = createLoginSchema().safeParse({ phone: "", password: "" });
     expect(result.success).toBe(false);
   });
 
   it("accepts valid login input", () => {
-    const result = loginSchema.safeParse({
+    const result = createLoginSchema().safeParse({
       phone: "0912345678",
       password: "secret",
     });
@@ -16,7 +16,7 @@ describe("auth schemas", () => {
   });
 
   it("rejects registration when passwords do not match", () => {
-    const result = registerSchema.safeParse({
+    const result = createRegisterSchema().safeParse({
       shopName: "Shop",
       displayName: "Owner",
       phone: "0912345678",
@@ -27,7 +27,7 @@ describe("auth schemas", () => {
   });
 
   it("accepts registration when passwords match", () => {
-    const result = registerSchema.safeParse({
+    const result = createRegisterSchema().safeParse({
       shopName: "Shop",
       displayName: "Owner",
       phone: "0912345678",

@@ -3,11 +3,11 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { t } from "@/i18n";
+import { t, useMessages } from "@/i18n";
 import { ApiError } from "@/lib/api";
 import { adjustStock } from "./api";
 import {
-  stockAdjustmentFormSchema,
+  createStockAdjustmentFormSchema,
   type StockAdjustmentFormValues,
 } from "./schemas";
 import type { Product } from "./types";
@@ -23,6 +23,7 @@ export function StockAdjustmentForm({
   onCancel,
   onAdjusted,
 }: StockAdjustmentFormProps) {
+  useMessages();
   const messages = t().products;
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
@@ -32,7 +33,8 @@ export function StockAdjustmentForm({
     handleSubmit,
     formState: { errors },
   } = useForm<StockAdjustmentFormValues>({
-    resolver: zodResolver(stockAdjustmentFormSchema),
+    resolver: (values, context, options) =>
+      zodResolver(createStockAdjustmentFormSchema())(values, context, options),
   });
 
   const onSubmit = handleSubmit(async (values) => {

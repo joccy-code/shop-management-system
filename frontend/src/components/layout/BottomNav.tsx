@@ -1,6 +1,6 @@
 import { Home, Package, ReceiptText, ShoppingCart } from "lucide-react";
 import { NavLink } from "react-router-dom";
-import { t } from "@/i18n";
+import { t, useMessages } from "@/i18n";
 
 const items = [
   { to: "/", labelKey: "home", icon: Home, end: true },
@@ -10,11 +10,12 @@ const items = [
 ] as const;
 
 export function BottomNav() {
+  useMessages();
   const messages = t();
 
   return (
     <nav
-      aria-label="Primary"
+      aria-label={messages.nav.primary}
       className="fixed inset-x-0 bottom-0 z-40 border-t border-ink-300/80 bg-white/95 backdrop-blur md:hidden"
     >
       <ul className="mx-auto grid max-w-lg grid-cols-4 px-2 pb-[env(safe-area-inset-bottom)]">

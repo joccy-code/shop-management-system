@@ -2,18 +2,20 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, Navigate } from "react-router-dom";
+import { LanguageSwitch } from "@/components/i18n/LanguageSwitch";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { registerAccount } from "@/features/auth/api";
 import {
-  registerSchema,
+  createRegisterSchema,
   type RegisterFormValues,
 } from "@/features/auth/schemas";
 import { useAuth, useInvalidateAuth } from "@/features/auth/useAuth";
-import { getAppName, t } from "@/i18n";
+import { getAppName, t, useMessages } from "@/i18n";
 import { ApiError } from "@/lib/api";
 
 export function RegisterPage() {
+  useMessages();
   const messages = t().auth;
   const { user, isLoading } = useAuth();
   const invalidateAuth = useInvalidateAuth();
@@ -24,7 +26,10 @@ export function RegisterPage() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<RegisterFormValues>({ resolver: zodResolver(registerSchema) });
+  } = useForm<RegisterFormValues>({
+    resolver: (values, context, options) =>
+      zodResolver(createRegisterSchema())(values, context, options),
+  });
 
   if (!isLoading && user) {
     return <Navigate to="/" replace />;
@@ -54,7 +59,11 @@ export function RegisterPage() {
 
   return (
     <div className="flex min-h-dvh items-center justify-center bg-ink-50 px-4 py-10">
-      <div className="w-full max-w-sm space-y-6 rounded-2xl bg-white p-6 shadow-soft">
+      <div className="w-full max-w-sm space-y-4">
+        <div className="flex justify-end">
+          <LanguageSwitch />
+        </div>
+        <div className="space-y-6 rounded-2xl bg-white p-6 shadow-soft">
         <div className="space-y-1 text-center">
           <p className="text-sm font-semibold text-brand-700">
             {getAppName()}
@@ -118,6 +127,7 @@ export function RegisterPage() {
             {messages.loginLink}
           </Link>
         </p>
+        </div>
       </div>
     </div>
   );

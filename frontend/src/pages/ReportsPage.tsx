@@ -17,8 +17,8 @@ import {
   type InventoryReport,
   type SalesReport,
 } from "@/features/reports/api";
-import { t } from "@/i18n";
-import { formatMoney, todayInputValue } from "@/lib/format";
+import { t, useMessages } from "@/i18n";
+import { formatMoney, formatQuantity, todayInputValue } from "@/lib/format";
 
 const COLLECTED_COLOR = "#16a34a";
 const OUTSTANDING_COLOR = "#d97706";
@@ -32,14 +32,6 @@ const CHART_LIMIT = 8;
 function amount(value: string): number {
   const number = Number(value);
   return Number.isFinite(number) ? number : 0;
-}
-
-function formatQuantity(value: string): string {
-  const number = Number(value);
-  if (!Number.isFinite(number)) {
-    return value;
-  }
-  return new Intl.NumberFormat("en-ET", { maximumFractionDigits: 3 }).format(number);
 }
 
 function Stat({ label, value }: { label: string; value: string }) {
@@ -91,7 +83,7 @@ function SalesCharts({ sales }: { sales: SalesReport }) {
   return (
     <>
       <div className="md:col-span-2">
-        <ReportCard title={messages.sales} summary={formatMoney(sales.revenue)} note={sales.profitNote}>
+        <ReportCard title={messages.sales} summary={formatMoney(sales.revenue)} note={messages.profitNote}>
           <div className="grid gap-6 lg:grid-cols-5">
             <div className="lg:col-span-3">
               <h3 className="mb-3 text-sm font-semibold text-ink-900">{messages.salesTrend}</h3>
@@ -212,7 +204,7 @@ function InventoryCharts({ inventory }: { inventory: InventoryReport }) {
 
   return (
     <div className="md:col-span-2">
-      <ReportCard title={messages.inventory} note={inventory.inventoryNote}>
+      <ReportCard title={messages.inventory} note={messages.inventoryNote}>
         <div className="grid gap-6 lg:grid-cols-2">
           <div className="space-y-5">
             {valueBars.length === 0 ? (
@@ -273,7 +265,7 @@ function BalanceChart({ balances }: { balances: CustomerBalanceReport }) {
       <ReportCard
         title={messages.balances}
         summary={formatMoney(balances.totalOutstanding)}
-        note={balances.note}
+        note={messages.balanceNote}
       >
         <HorizontalBars
           items={bars}
@@ -307,6 +299,7 @@ function ReportFallback({
 }
 
 export function ReportsPage() {
+  useMessages();
   const messages = t().reports;
   const today = todayInputValue();
   const [from, setFrom] = useState(`${today.slice(0, 7)}-01`);

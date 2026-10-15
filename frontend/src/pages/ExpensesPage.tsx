@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/Input";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Select } from "@/components/ui/Select";
 import { createExpense, listExpenses, voidExpense } from "@/features/expenses/api";
-import { t } from "@/i18n";
+import { t, useMessages } from "@/i18n";
 import { ApiError } from "@/lib/api";
 import { formatMoney, todayInputValue } from "@/lib/format";
 
@@ -20,6 +20,7 @@ const CATEGORIES = [
 ] as const;
 
 export function ExpensesPage() {
+  useMessages();
   const messages = t().expenses;
   const queryClient = useQueryClient();
   const [description, setDescription] = useState("");

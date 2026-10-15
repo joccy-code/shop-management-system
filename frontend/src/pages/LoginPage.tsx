@@ -3,15 +3,17 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import type { Location } from "react-router-dom";
 import { Link, Navigate, useLocation } from "react-router-dom";
+import { LanguageSwitch } from "@/components/i18n/LanguageSwitch";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { login } from "@/features/auth/api";
-import { loginSchema, type LoginFormValues } from "@/features/auth/schemas";
+import { createLoginSchema, type LoginFormValues } from "@/features/auth/schemas";
 import { useAuth, useInvalidateAuth } from "@/features/auth/useAuth";
-import { getAppName, t } from "@/i18n";
+import { getAppName, t, useMessages } from "@/i18n";
 import { ApiError } from "@/lib/api";
 
 export function LoginPage() {
+  useMessages();
   const messages = t().auth;
   const { user, isLoading } = useAuth();
   const invalidateAuth = useInvalidateAuth();
@@ -23,7 +25,10 @@ export function LoginPage() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<LoginFormValues>({ resolver: zodResolver(loginSchema) });
+  } = useForm<LoginFormValues>({
+    resolver: (values, context, options) =>
+      zodResolver(createLoginSchema())(values, context, options),
+  });
 
   if (!isLoading && user) {
     const state = location.state as { from?: Location } | null;
@@ -51,7 +56,11 @@ export function LoginPage() {
 
   return (
     <div className="flex min-h-dvh items-center justify-center bg-ink-50 px-4 py-10">
-      <div className="w-full max-w-sm space-y-6 rounded-2xl bg-white p-6 shadow-soft">
+      <div className="w-full max-w-sm space-y-4">
+        <div className="flex justify-end">
+          <LanguageSwitch />
+        </div>
+        <div className="space-y-6 rounded-2xl bg-white p-6 shadow-soft">
         <div className="space-y-1 text-center">
           <p className="text-sm font-semibold text-brand-700">
             {getAppName()}
@@ -96,6 +105,7 @@ export function LoginPage() {
             {messages.registerLink}
           </Link>
         </p>
+        </div>
       </div>
     </div>
   );

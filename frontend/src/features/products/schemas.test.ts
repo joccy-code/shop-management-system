@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { productFormSchema, stockAdjustmentFormSchema } from "./schemas";
+import { createProductFormSchema, createStockAdjustmentFormSchema } from "./schemas";
 
 describe("product schemas", () => {
   it("requires a product name", () => {
-    const result = productFormSchema.safeParse({
+    const result = createProductFormSchema().safeParse({
       name: "",
       categoryId: "",
       sku: "",
@@ -17,7 +17,7 @@ describe("product schemas", () => {
   });
 
   it("rejects a negative selling price", () => {
-    const result = productFormSchema.safeParse({
+    const result = createProductFormSchema().safeParse({
       name: "Sugar",
       categoryId: "",
       sku: "",
@@ -31,7 +31,7 @@ describe("product schemas", () => {
   });
 
   it("accepts a valid product", () => {
-    const result = productFormSchema.safeParse({
+    const result = createProductFormSchema().safeParse({
       name: "Sugar",
       categoryId: "",
       sku: "",
@@ -47,7 +47,7 @@ describe("product schemas", () => {
 
 describe("stock adjustment schema", () => {
   it("rejects a zero quantity change", () => {
-    const result = stockAdjustmentFormSchema.safeParse({
+    const result = createStockAdjustmentFormSchema().safeParse({
       quantityChange: "0",
       reason: "Count",
     });
@@ -55,7 +55,7 @@ describe("stock adjustment schema", () => {
   });
 
   it("accepts a negative quantity change with a reason", () => {
-    const result = stockAdjustmentFormSchema.safeParse({
+    const result = createStockAdjustmentFormSchema().safeParse({
       quantityChange: "-2",
       reason: "Damaged",
     });
