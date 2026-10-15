@@ -52,6 +52,7 @@ export const am: Messages = {
     save: "አስቀምጥ",
     saving: "በማስቀመጥ ላይ…",
     saveError: "ማስቀመጥ አልተሳካም። እባክዎ እንደገና ይሞክሩ።",
+    dismiss: "ዝጋ",
   },
   auth: {
     loginTitle: "እንኳን በደህና ተመለሱ",
@@ -253,6 +254,7 @@ export const am: Messages = {
     search: "ደንበኞችን ይፈልጉ",
     loadError: "ደንበኞችን መጫን አልተቻለም።",
     remove: "አስወግድ",
+    removed: "ደንበኛው ተወግዷል።",
     removeConfirm: "ይህን ደንበኛ ያስወግዳሉ? ያለፉ ሽያጮች በታሪክ ይቆያሉ።",
     stillOwes: "ይህ ደንበኛ ገና ዕዳ አለበት። ከማስወገድዎ በፊት ክፍያውን ይመዝግቡ።",
   },

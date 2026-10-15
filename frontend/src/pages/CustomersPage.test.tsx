@@ -1,8 +1,9 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { Toaster, clearToasts } from "@/components/ui/toast";
 import type { Customer } from "@/features/customers/api";
 import { CustomersPage } from "./CustomersPage";
 
@@ -42,6 +43,7 @@ function renderPage() {
     <QueryClientProvider client={queryClient}>
       <MemoryRouter>
         <CustomersPage />
+        <Toaster />
       </MemoryRouter>
     </QueryClientProvider>,
   );
@@ -54,6 +56,7 @@ function page(items: Customer[]) {
 describe("CustomersPage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    clearToasts();
   });
 
   it("refuses to remove a customer who still owes", async () => {
@@ -63,7 +66,7 @@ describe("CustomersPage", () => {
 
     await user.click(await screen.findByRole("button", { name: "Remove" }));
 
-    expect(await screen.findByRole("alert")).toHaveTextContent(
+    expect(await screen.findByRole("status")).toHaveTextContent(
       "This customer still owes money",
     );
     expect(removeCustomer).not.toHaveBeenCalled();
@@ -74,18 +77,19 @@ describe("CustomersPage", () => {
       .mockResolvedValueOnce(page([paid, owing]))
       .mockResolvedValue(page([owing]));
     vi.mocked(removeCustomer).mockResolvedValue({ removed: true });
-    const confirm = vi.spyOn(window, "confirm").mockReturnValue(true);
+    const confirm = vi.spyOn(window, "confirm");
 
     const user = userEvent.setup();
     renderPage();
     expect(await screen.findByText("Abebe Kebede")).toBeInTheDocument();
 
     await user.click(screen.getAllByRole("button", { name: "Remove" })[0]!);
+    const toast = await screen.findByRole("status");
+    expect(toast).toHaveTextContent("Remove this customer? Past sales stay in the history.");
+    await user.click(within(toast).getByRole("button", { name: "Remove" }));
 
     await waitFor(() => expect(removeCustomer).toHaveBeenCalledWith("c-paid"));
-    expect(confirm).toHaveBeenCalledWith(
-      "Remove this customer? Past sales stay in the history.",
-    );
+    expect(confirm).not.toHaveBeenCalled();
     await waitFor(() =>
       expect(screen.queryByText("Abebe Kebede")).not.toBeInTheDocument(),
     );
@@ -123,7 +127,7 @@ describe("CustomersPage", () => {
     );
     renderPage();
 
-    expect(await screen.findByRole("alert")).toHaveTextContent(
+    expect(await screen.findByRole("status")).toHaveTextContent(
       "Something went wrong. Please try again.",
     );
     expect(screen.queryByText("No customers yet")).not.toBeInTheDocument();

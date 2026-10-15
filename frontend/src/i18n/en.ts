@@ -50,6 +50,7 @@ export const en = {
     save: "Save",
     saving: "Saving…",
     saveError: "Could not save. Please try again.",
+    dismiss: "Dismiss",
   },
   auth: {
     loginTitle: "Welcome back",
@@ -252,6 +253,7 @@ export const en = {
     search: "Search customers",
     loadError: "Customers could not be loaded.",
     remove: "Remove",
+    removed: "Customer removed.",
     removeConfirm: "Remove this customer? Past sales stay in the history.",
     stillOwes: "This customer still owes money. Record the repayment before removing them.",
   },
