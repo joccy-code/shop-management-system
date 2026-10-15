@@ -34,6 +34,13 @@ describe("i18n helpers", () => {
     expect(t().reports.headline).toBe("የንግድ ሪፖርቶች");
     expect(localStorage.getItem("shop-manager.locale")).toBe("am");
     expect(getAppName()).toBe("ሱቅ አስተዳዳሪ");
+    expect(document.documentElement.lang).toBe("am");
+    expect(document.documentElement.getAttribute("translate")).toBe("no");
+    expect(document.documentElement.classList.contains("notranslate")).toBe(true);
+    expect(document.body.getAttribute("translate")).toBe("no");
+    expect(
+      document.head.querySelector('meta[name="google"]')?.getAttribute("content"),
+    ).toBe("notranslate");
   });
 
   it("keeps the same message keys in English and Amharic", () => {
