@@ -16,6 +16,7 @@ import {
   getCustomerDetail,
   listCustomers,
   recordRepayment,
+  removeCustomer,
   updateCustomer,
 } from "../services/customer.service.js";
 
@@ -65,6 +66,11 @@ export async function patchCustomer(req: Request, res: Response): Promise<void> 
       outstandingBalance: detail.outstandingBalance,
     }),
   );
+}
+
+export async function deleteCustomer(req: Request, res: Response): Promise<void> {
+  await removeCustomer(shopId(req), req.params.id as string);
+  sendSuccess(res, { removed: true });
 }
 
 export async function postRepayment(req: Request, res: Response): Promise<void> {

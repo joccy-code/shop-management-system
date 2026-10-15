@@ -1,5 +1,6 @@
 import { Router } from "express";
 import {
+  deleteCustomer,
   getCustomer,
   getCustomers,
   patchCustomer,
@@ -26,6 +27,10 @@ customerRouter.get("/customers/:id", (req, res, next) => {
 
 customerRouter.patch("/customers/:id", (req, res, next) => {
   void patchCustomer(req, res).catch(next);
+});
+
+customerRouter.delete("/customers/:id", (req, res, next) => {
+  void deleteCustomer(req, res).catch(next);
 });
 
 customerRouter.post("/customers/:id/repayments", (req, res, next) => {

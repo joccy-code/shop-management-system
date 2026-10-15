@@ -33,7 +33,7 @@ export async function updateCustomer(
   input: UpdateCustomerInput,
 ): Promise<Customer> {
   const existing = await prisma.customer.findFirst({
-    where: { id: customerId, shopId },
+    where: { id: customerId, shopId, removedAt: null },
   });
 
   if (!existing) {
@@ -56,6 +56,7 @@ export async function listCustomers(
 ): Promise<Page<Customer & { outstandingBalance: string }>> {
   const where: Prisma.CustomerWhereInput = {
     shopId,
+    removedAt: null,
     ...(query.search
       ? {
           OR: [
@@ -119,7 +120,7 @@ async function outstandingByCustomer(
 
 export async function getCustomerDetail(shopId: string, customerId: string) {
   const customer = await prisma.customer.findFirst({
-    where: { id: customerId, shopId },
+    where: { id: customerId, shopId, removedAt: null },
   });
 
   if (!customer) {
@@ -156,7 +157,7 @@ export async function recordRepayment(
 ): Promise<{ sale: SaleWithRelations; outstandingBalance: string }> {
   await prisma.$transaction(async (tx) => {
     const customer = await tx.customer.findFirst({
-      where: { id: customerId, shopId },
+      where: { id: customerId, shopId, removedAt: null },
     });
     if (!customer) {
       throw new AppError(404, "NOT_FOUND", "Customer not found.");
@@ -232,4 +233,29 @@ export async function recordRepayment(
     sale,
     outstandingBalance: balance.get(customerId) ?? "0.00",
   };
+}
+
+export async function removeCustomer(shopId: string, customerId: string): Promise<void> {
+  const customer = await prisma.customer.findFirst({
+    where: { id: customerId, shopId, removedAt: null },
+  });
+
+  if (!customer) {
+    throw new AppError(404, "NOT_FOUND", "Customer not found.");
+  }
+
+  const balances = await outstandingByCustomer(shopId, [customerId]);
+  const outstanding = new Decimal(balances.get(customerId) ?? 0);
+  if (outstanding.greaterThan(0)) {
+    throw new AppError(
+      409,
+      "CUSTOMER_HAS_BALANCE",
+      "This customer still owes money. Record the repayment before removing them.",
+    );
+  }
+
+  await prisma.customer.update({
+    where: { id: customer.id },
+    data: { removedAt: new Date() },
+  });
 }

@@ -171,6 +171,12 @@ describe("sales, expenses, credit, and reports", () => {
     expect(tooMuch.status).toBe(400);
     expect(tooMuch.body.error.code).toBe("REPAYMENT_TOO_LARGE");
 
+    const blocked = await request(app)
+      .delete(`/api/v1/customers/${customer.body.data.id}`)
+      .set("Cookie", cookie);
+    expect(blocked.status).toBe(409);
+    expect(blocked.body.error.code).toBe("CUSTOMER_HAS_BALANCE");
+
     const paid = await request(app)
       .post(`/api/v1/customers/${customer.body.data.id}/repayments`)
       .set("Cookie", cookie)
@@ -188,6 +194,21 @@ describe("sales, expenses, credit, and reports", () => {
       .set("Cookie", cookie);
     expect(detail.body.data.repayments).toHaveLength(1);
     expect(detail.body.data.phone).toBe("+251911223344");
+
+    const removed = await request(app)
+      .delete(`/api/v1/customers/${customer.body.data.id}`)
+      .set("Cookie", cookie);
+    expect(removed.status).toBe(200);
+
+    const listed = await request(app)
+      .get("/api/v1/customers")
+      .set("Cookie", cookie);
+    expect(listed.body.data.items).toEqual([]);
+
+    const saleAfter = await request(app)
+      .get(`/api/v1/sales/${sale.body.data.sale.id}`)
+      .set("Cookie", cookie);
+    expect(saleAfter.body.data.customerName).toBe("Abebe Kebede");
   });
 
   it("voids a sale and restores stock, then excludes it from revenue", async () => {
