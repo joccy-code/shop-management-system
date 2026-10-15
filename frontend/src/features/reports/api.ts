@@ -36,6 +36,12 @@ export type SalesReport = {
   collected: string;
   outstanding: string;
   estimatedGrossProfit: string;
+  byDay: Array<{
+    date: string;
+    count: number;
+    revenue: string;
+    collected: string;
+  }>;
   bestSellers: Array<{
     productId: string;
     name: string;
@@ -60,6 +66,18 @@ export type InventoryReport = {
     id: string;
     name: string;
     stockQuantity: string;
+    lowStock: boolean;
+  }>;
+  items: Array<{
+    id: string;
+    name: string;
+    sku: string | null;
+    categoryName: string | null;
+    stockQuantity: string;
+    unitCost: string;
+    sellingPrice: string;
+    costValue: string;
+    retailValue: string;
     lowStock: boolean;
   }>;
 };
