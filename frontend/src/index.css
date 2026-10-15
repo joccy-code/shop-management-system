@@ -36,7 +36,7 @@
   }
 
   html[lang="am"] {
-    line-height: 1.6;
+    line-height: 1.7;
   }
 
   body {
@@ -80,4 +80,16 @@
     outline: 2px solid var(--color-brand-600);
     outline-offset: 2px;
   }
+}
+
+html[lang="am"] {
+  font-family: "Noto Sans Ethiopic", "Source Sans 3 Variable", "Source Sans 3", "Segoe UI", sans-serif;
+}
+
+html[lang="am"] :is(h1, h2, h3, p, a, button, label, li, span, dt, dd) {
+  line-height: 1.6;
+}
+
+html[lang="am"] svg text {
+  font-family: "Noto Sans Ethiopic", sans-serif;
 }
