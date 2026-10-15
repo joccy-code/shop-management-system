@@ -2,6 +2,7 @@ import request from "supertest";
 import { beforeEach, describe, expect, it } from "vitest";
 import type { Express } from "express";
 import { createApp } from "../app.js";
+import { prisma } from "../lib/prisma.js";
 import { registerAccount } from "../test/factories.js";
 
 async function createProduct(
@@ -208,7 +209,18 @@ describe("sales, expenses, credit, and reports", () => {
     const saleAfter = await request(app)
       .get(`/api/v1/sales/${sale.body.data.sale.id}`)
       .set("Cookie", cookie);
+    expect(saleAfter.body.data.customerId).toBeNull();
     expect(saleAfter.body.data.customerName).toBe("Abebe Kebede");
+
+    const customerId = customer.body.data.id as string;
+    const gone = await request(app)
+      .get(`/api/v1/customers/${customerId}`)
+      .set("Cookie", cookie);
+    expect(gone.status).toBe(404);
+    expect(
+      await prisma.customerRepayment.count({ where: { customerId } }),
+    ).toBe(0);
+    expect(await prisma.customer.findUnique({ where: { id: customerId } })).toBeNull();
   });
 
   it("voids a sale and restores stock, then excludes it from revenue", async () => {

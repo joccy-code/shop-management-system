@@ -80,7 +80,7 @@ export function serializeSale(sale: SaleWithRelations) {
     receiptNumber: sale.receiptNumber,
     status: sale.status,
     customerId: sale.customerId,
-    customerName: sale.customer?.name ?? null,
+    customerName: sale.customerNameSnapshot ?? sale.customer?.name ?? null,
     subtotal: new Decimal(sale.subtotal).toFixed(2),
     total: new Decimal(sale.total).toFixed(2),
     amountPaid: new Decimal(sale.amountPaid).toFixed(2),

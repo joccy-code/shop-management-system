@@ -50,7 +50,7 @@ The server prices every line from the current product. Client totals are ignored
 | --- | --- | --- |
 | GET, POST | `/customers` | List (with outstanding balance) or create. |
 | GET, PATCH | `/customers/:id` | Detail, including sales and repayments, or edit the profile. |
-| DELETE | `/customers/:id` | Remove a customer who has no outstanding balance. Past sales stay in the history. |
+| DELETE | `/customers/:id` | Delete a customer who has no outstanding balance, and delete that customer's repayment rows. Past sales stay in the history with the customer's name. |
 | POST | `/customers/:id/repayments` | Record a repayment against one open sale. |
 
 ## Reports
