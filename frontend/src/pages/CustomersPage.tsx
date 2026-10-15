@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Input } from "@/components/ui/Input";
@@ -11,6 +11,7 @@ import {
   listCustomers,
   recordRepayment,
   removeCustomer,
+  type CustomerPage,
 } from "@/features/customers/api";
 import { t, useMessages } from "@/i18n";
 import { ApiError } from "@/lib/api";
@@ -31,6 +32,7 @@ export function CustomersPage() {
   const [method, setMethod] = useState("CASH");
   const [pageError, setPageError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [createdId, setCreatedId] = useState<string | null>(null);
 
   const customersQuery = useQuery({
     queryKey: ["customers", search],
@@ -56,6 +58,19 @@ export function CustomersPage() {
       setPhone("");
       setNotes("");
       setSelectedId(created.id);
+      setCreatedId(created.id);
+      queryClient.setQueryData<CustomerPage>(["customers", search], (current) => {
+        const items = [...(current?.items ?? []).filter((item) => item.id !== created.id), created].sort(
+          (left, right) => left.name.localeCompare(right.name),
+        );
+        const alreadyListed = current?.items.some((item) => item.id === created.id) ?? false;
+        return {
+          items,
+          page: current?.page ?? 1,
+          pageSize: current?.pageSize ?? 50,
+          total: (current?.total ?? 0) + (alreadyListed ? 0 : 1),
+        };
+      });
       await queryClient.invalidateQueries({ queryKey: ["customers"] });
     } catch (error) {
       setPageError(error instanceof ApiError ? error.message : t().common.saveError);
@@ -117,6 +132,19 @@ export function CustomersPage() {
 
   const customers = customersQuery.data?.items ?? [];
   const detail = detailQuery.data;
+  const listError =
+    customersQuery.isError && customers.length === 0
+      ? customersQuery.error instanceof ApiError
+        ? customersQuery.error.message
+        : messages.loadError
+      : null;
+
+  useEffect(() => {
+    if (!createdId) {
+      return;
+    }
+    document.getElementById(`customer-${createdId}`)?.scrollIntoView?.({ block: "center" });
+  }, [createdId, customers]);
   const openSales =
     detail?.sales.filter(
       (sale) => sale.status === "UNPAID" || sale.status === "PARTIALLY_PAID",
@@ -130,34 +158,11 @@ export function CustomersPage() {
           {pageError}
         </p>
       ) : null}
-
-      <form
-        className="space-y-4 rounded-2xl border border-ink-300/70 bg-white p-4 shadow-soft"
-        onSubmit={(event) => {
-          event.preventDefault();
-          void saveCustomer();
-        }}
-      >
-        <Input
-          label={messages.name}
-          required
-          value={name}
-          onChange={(event) => setName(event.target.value)}
-        />
-        <Input
-          label={messages.phone}
-          value={phone}
-          onChange={(event) => setPhone(event.target.value)}
-        />
-        <Input
-          label={messages.notes}
-          value={notes}
-          onChange={(event) => setNotes(event.target.value)}
-        />
-        <Button type="submit" disabled={submitting}>
-          {messages.add}
-        </Button>
-      </form>
+      {listError ? (
+        <p role="alert" className="text-sm text-danger-600">
+          {listError}
+        </p>
+      ) : null}
 
       <Input
         label={messages.search}
@@ -165,12 +170,13 @@ export function CustomersPage() {
         onChange={(event) => setSearch(event.target.value)}
       />
 
-      {customers.length === 0 && !customersQuery.isLoading ? (
+      {customers.length === 0 && !customersQuery.isLoading && !listError ? (
         <EmptyState title={messages.emptyTitle} description={messages.emptyBody} />
-      ) : (
+      ) : customers.length > 0 ? (
         <ul className="space-y-2">
           {customers.map((customer) => (
             <li
+              id={`customer-${customer.id}`}
               key={customer.id}
               className="flex items-stretch gap-2 rounded-2xl border border-ink-300/70 bg-white shadow-soft"
             >
@@ -200,7 +206,7 @@ export function CustomersPage() {
             </li>
           ))}
         </ul>
-      )}
+      ) : null}
 
       {detail ? (
         <div className="space-y-4 rounded-2xl border border-ink-300/70 bg-white p-4 shadow-soft">
@@ -287,6 +293,34 @@ export function CustomersPage() {
           </div>
         </div>
       ) : null}
+
+      <form
+        className="space-y-4 rounded-2xl border border-ink-300/70 bg-white p-4 shadow-soft"
+        onSubmit={(event) => {
+          event.preventDefault();
+          void saveCustomer();
+        }}
+      >
+        <Input
+          label={messages.name}
+          required
+          value={name}
+          onChange={(event) => setName(event.target.value)}
+        />
+        <Input
+          label={messages.phone}
+          value={phone}
+          onChange={(event) => setPhone(event.target.value)}
+        />
+        <Input
+          label={messages.notes}
+          value={notes}
+          onChange={(event) => setNotes(event.target.value)}
+        />
+        <Button type="submit" disabled={submitting}>
+          {messages.add}
+        </Button>
+      </form>
     </section>
   );
 }
