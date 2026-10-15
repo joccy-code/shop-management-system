@@ -72,7 +72,7 @@ export function HomePage() {
             <Link
               key={action.to}
               to={action.to}
-              className={`flex min-h-16 min-w-0 items-center gap-2 rounded-2xl px-3 py-3 text-sm font-semibold leading-snug shadow-soft ${
+              className={`flex min-h-16 min-w-0 items-center gap-2 rounded-2xl px-3 py-3 text-sm font-semibold shadow-soft ${
                 action.primary
                   ? "bg-brand-700 text-white"
                   : "border border-ink-300/70 bg-white text-ink-900"

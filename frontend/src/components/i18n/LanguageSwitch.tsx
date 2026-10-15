@@ -2,7 +2,7 @@ import { getLocale, setLocale, useMessages, type Locale } from "@/i18n";
 
 const options: Array<{ locale: Locale; short: string }> = [
   { locale: "en", short: "EN" },
-  { locale: "am", short: "አማ" },
+  { locale: "am", short: "አማርኛ" },
 ];
 
 type LanguageSwitchProps = {
@@ -30,7 +30,7 @@ export function LanguageSwitch({ compact = false }: LanguageSwitchProps) {
             aria-pressed={selected}
             aria-label={label}
             onClick={() => setLocale(option.locale)}
-            className={`min-h-11 rounded-lg px-2.5 text-sm font-semibold ${
+            className={`min-h-11 rounded-lg px-2.5 text-base font-semibold ${
               selected ? "bg-brand-700 text-white" : "text-ink-700 hover:bg-ink-100"
             }`}
           >

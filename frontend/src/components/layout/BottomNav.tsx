@@ -28,13 +28,13 @@ export function BottomNav() {
                 to={item.to}
                 end={item.end}
                 className={({ isActive }) =>
-                  `flex min-h-16 w-full flex-col items-center justify-center gap-0.5 px-0.5 py-1 text-center text-[11px] font-medium leading-tight ${
+                  `flex min-h-16 w-full flex-col items-center justify-center gap-1 px-0.5 py-1.5 text-center text-xs font-semibold ${
                     isActive ? "text-brand-700" : "text-ink-500"
                   }`
                 }
               >
                 <Icon className="h-5 w-5 shrink-0" aria-hidden="true" />
-                <span className="w-full text-balance">{label}</span>
+                <span className="w-full">{label}</span>
               </NavLink>
             </li>
           );
