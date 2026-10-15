@@ -90,18 +90,18 @@ export function ProductForm({
             </option>
           ))}
         </Select>
-        <div className="flex gap-2">
+        <div className="flex min-w-0 gap-2">
           <input
             value={newCategoryName}
             onChange={(event) => setNewCategoryName(event.target.value)}
             placeholder={messages.newCategoryPlaceholder}
             aria-label={messages.newCategoryPlaceholder}
-            className="min-h-11 flex-1 rounded-xl border border-ink-300 px-3 text-sm text-ink-900 outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-200"
+            className="min-h-12 min-w-0 flex-1 rounded-xl border border-ink-300 px-3 text-base text-ink-900 outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-200"
           />
           <Button
             type="button"
             variant="secondary"
-            className="min-h-11 px-3 text-sm"
+            className="min-h-12 shrink-0 px-3"
             onClick={handleAddCategory}
             disabled={creatingCategory || !newCategoryName.trim()}
           >
@@ -116,7 +116,7 @@ export function ProductForm({
         {...register("sku")}
       />
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <Input
           label={messages.sellingPriceLabel}
           inputMode="decimal"
@@ -131,7 +131,7 @@ export function ProductForm({
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <Input
           label={messages.stockQuantityLabel}
           inputMode="decimal"
@@ -153,11 +153,11 @@ export function ProductForm({
         {...register("unitOfMeasure")}
       />
 
-      <div className="flex justify-end gap-3 pt-2">
-        <Button type="button" variant="secondary" onClick={onCancel}>
+      <div className="flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:justify-end">
+        <Button type="button" variant="secondary" className="w-full sm:w-auto" onClick={onCancel}>
           {t().common.cancel}
         </Button>
-        <Button type="submit" disabled={submitting}>
+        <Button type="submit" className="w-full sm:w-auto" disabled={submitting}>
           {submitting ? messages.saving : messages.save}
         </Button>
       </div>

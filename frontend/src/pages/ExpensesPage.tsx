@@ -133,7 +133,7 @@ export function ExpensesPage() {
           value={note}
           onChange={(event) => setNote(event.target.value)}
         />
-        <Button type="submit" disabled={submitting}>
+        <Button type="submit" className="w-full" disabled={submitting}>
           {submitting ? t().common.saving : messages.add}
         </Button>
       </form>
@@ -147,17 +147,17 @@ export function ExpensesPage() {
           {expenses.map((expense) => (
             <li
               key={expense.id}
-              className="flex items-start justify-between gap-3 rounded-2xl border border-ink-300/70 bg-white px-4 py-3 shadow-soft"
+              className="flex flex-col gap-3 rounded-2xl border border-ink-300/70 bg-white px-4 py-3 shadow-soft sm:flex-row sm:items-start sm:justify-between"
             >
-              <div>
-                <p className="font-semibold text-ink-900">{expense.description}</p>
-                <p className="text-sm text-ink-500">
+              <div className="min-w-0">
+                <p className="break-words font-semibold text-ink-900">{expense.description}</p>
+                <p className="break-words text-sm text-ink-500">
                   {messages.categories[expense.category as keyof typeof messages.categories] ??
                     expense.category}{" "}
                   · {expense.expenseDate} · {formatMoney(expense.amount)}
                 </p>
               </div>
-              <Button variant="ghost" onClick={() => void voidOne(expense.id)}>
+              <Button variant="ghost" className="w-full sm:w-auto" onClick={() => void voidOne(expense.id)}>
                 {messages.void}
               </Button>
             </li>

@@ -58,12 +58,12 @@ export function RegisterPage() {
   });
 
   return (
-    <div className="flex min-h-dvh items-center justify-center bg-ink-50 px-4 py-10">
+    <div className="flex min-h-dvh items-center justify-center bg-ink-50 px-4 pt-[max(2.5rem,env(safe-area-inset-top))] pb-[max(2.5rem,env(safe-area-inset-bottom))]">
       <div className="w-full max-w-sm space-y-4">
         <div className="flex justify-end">
           <LanguageSwitch />
         </div>
-        <div className="space-y-6 rounded-2xl bg-white p-6 shadow-soft">
+        <div className="space-y-6 rounded-2xl bg-white p-5 shadow-soft sm:p-6">
         <div className="space-y-1 text-center">
           <p className="text-sm font-semibold text-brand-700">
             {getAppName()}

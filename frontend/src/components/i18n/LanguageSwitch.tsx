@@ -17,7 +17,7 @@ export function LanguageSwitch({ compact = false }: LanguageSwitchProps) {
     <div
       role="group"
       aria-label={messages.language.label}
-      className="inline-flex rounded-xl border border-ink-300 bg-white p-0.5"
+      className="inline-flex max-w-full flex-wrap rounded-xl border border-ink-300 bg-white p-0.5"
     >
       {options.map((option) => {
         const selected = locale === option.locale;
@@ -30,7 +30,7 @@ export function LanguageSwitch({ compact = false }: LanguageSwitchProps) {
             aria-pressed={selected}
             aria-label={label}
             onClick={() => setLocale(option.locale)}
-            className={`min-h-9 rounded-lg px-2.5 text-sm font-semibold ${
+            className={`min-h-11 rounded-lg px-2.5 text-sm font-semibold ${
               selected ? "bg-brand-700 text-white" : "text-ink-700 hover:bg-ink-100"
             }`}
           >

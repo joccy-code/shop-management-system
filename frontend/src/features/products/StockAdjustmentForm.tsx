@@ -83,11 +83,11 @@ export function StockAdjustmentForm({
         </p>
       ) : null}
 
-      <div className="flex justify-end gap-3 pt-2">
-        <Button type="button" variant="secondary" onClick={onCancel}>
+      <div className="flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:justify-end">
+        <Button type="button" variant="secondary" className="w-full sm:w-auto" onClick={onCancel}>
           {t().common.cancel}
         </Button>
-        <Button type="submit" disabled={submitting}>
+        <Button type="submit" className="w-full sm:w-auto" disabled={submitting}>
           {submitting ? messages.saving : messages.saveAdjustment}
         </Button>
       </div>

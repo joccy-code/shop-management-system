@@ -182,11 +182,11 @@ export function CustomersPage() {
             <li
               id={`customer-${customer.id}`}
               key={customer.id}
-              className="flex items-stretch gap-2 rounded-2xl border border-ink-300/70 bg-white shadow-soft"
+              className="flex flex-col rounded-2xl border border-ink-300/70 bg-white shadow-soft sm:flex-row sm:items-stretch"
             >
               <button
                 type="button"
-                className="flex min-w-0 flex-1 items-center justify-between gap-3 px-4 py-3 text-left"
+                className="flex min-h-14 min-w-0 flex-1 items-center justify-between gap-3 px-4 py-3 text-left"
                 onClick={() => setSelectedId(customer.id)}
               >
                 <span className="min-w-0">
@@ -199,7 +199,7 @@ export function CustomersPage() {
               </button>
               <Button
                 variant="ghost"
-                className="min-h-10 shrink-0 self-center px-3 text-sm text-danger-600"
+                className="min-h-12 w-full justify-center border-t border-ink-100 px-3 text-danger-600 sm:w-auto sm:self-center sm:border-t-0"
                 disabled={submitting}
                 onClick={() =>
                   void removeSelectedCustomer(customer.id, customer.outstandingBalance)
@@ -214,16 +214,16 @@ export function CustomersPage() {
 
       {detail ? (
         <div className="space-y-4 rounded-2xl border border-ink-300/70 bg-white p-4 shadow-soft">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <h2 className="text-lg font-semibold text-ink-900">{detail.name}</h2>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0">
+              <h2 className="break-words text-lg font-semibold text-ink-900">{detail.name}</h2>
               <p className="text-sm text-ink-500">
                 {messages.outstanding} {formatMoney(detail.outstandingBalance)}
               </p>
             </div>
             <Button
               variant="ghost"
-              className="min-h-10 px-3 text-sm text-danger-600"
+              className="min-h-12 w-full text-danger-600 sm:w-auto"
               disabled={submitting}
               onClick={() =>
                 void removeSelectedCustomer(detail.id, detail.outstandingBalance)
@@ -273,7 +273,7 @@ export function CustomersPage() {
                   </option>
                 ))}
               </Select>
-              <Button type="submit" disabled={submitting || !saleId}>
+              <Button type="submit" className="w-full" disabled={submitting || !saleId}>
                 {messages.repay}
               </Button>
             </form>
@@ -321,7 +321,7 @@ export function CustomersPage() {
           value={notes}
           onChange={(event) => setNotes(event.target.value)}
         />
-        <Button type="submit" disabled={submitting}>
+        <Button type="submit" className="w-full" disabled={submitting}>
           {messages.add}
         </Button>
       </form>

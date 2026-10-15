@@ -94,7 +94,7 @@ describe("SalesPage", () => {
 
     expect(await screen.findByText("Rice 1kg")).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Add" }));
-    await user.click(screen.getByRole("button", { name: "Confirm sale" }));
+    await user.click(screen.getAllByRole("button", { name: "Confirm sale" })[0]!);
 
     await waitFor(() => {
       expect(createSale).toHaveBeenCalledTimes(1);

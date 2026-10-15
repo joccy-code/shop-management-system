@@ -118,12 +118,13 @@ export function SettingsPage() {
                 {passwordMessage}
               </p>
             ) : null}
-            <Button type="submit" variant="secondary" disabled={savingPassword}>
+            <Button type="submit" variant="secondary" className="w-full sm:w-auto" disabled={savingPassword}>
               {messages.changePassword}
             </Button>
           </form>
           <Button
             variant="danger"
+            className="w-full sm:w-auto"
             onClick={() => void handleLogout()}
             disabled={loggingOut}
           >

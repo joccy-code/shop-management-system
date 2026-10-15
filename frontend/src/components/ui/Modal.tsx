@@ -34,15 +34,15 @@ export function Modal({ title, onClose, children }: ModalProps) {
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className="relative max-h-[90dvh] w-full max-w-lg overflow-y-auto rounded-t-3xl bg-white p-5 shadow-soft md:rounded-3xl"
+        className="relative max-h-[92dvh] w-full max-w-lg overflow-y-auto rounded-t-3xl bg-white p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] shadow-soft md:rounded-3xl md:pb-5"
       >
         <div className="mb-4 flex items-center justify-between">
-          <h2 id={titleId} className="text-lg font-semibold text-ink-900">
+          <h2 id={titleId} className="min-w-0 break-words text-lg font-semibold text-ink-900">
             {title}
           </h2>
           <Button
             variant="ghost"
-            className="min-h-10 px-2"
+            className="min-h-12 shrink-0 px-2"
             onClick={onClose}
             aria-label="Close"
           >

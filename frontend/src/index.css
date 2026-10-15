@@ -56,6 +56,26 @@
     font: inherit;
   }
 
+  input,
+  select,
+  textarea {
+    max-width: 100%;
+  }
+
+  input[type="date"],
+  input[type="datetime-local"],
+  input[type="time"] {
+    min-width: 0;
+  }
+
+  @media (max-width: 767px) {
+    input,
+    select,
+    textarea {
+      scroll-margin-bottom: 9rem;
+    }
+  }
+
   :focus-visible {
     outline: 2px solid var(--color-brand-600);
     outline-offset: 2px;

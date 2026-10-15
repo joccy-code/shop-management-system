@@ -101,6 +101,16 @@ export function SalesPage() {
     idempotencyKey.current = null;
   }, [payloadSignature]);
 
+  useEffect(() => {
+    if (cart.length === 0) {
+      return;
+    }
+    document.documentElement.style.setProperty("--mobile-dock", "9.5rem");
+    return () => {
+      document.documentElement.style.removeProperty("--mobile-dock");
+    };
+  }, [cart.length]);
+
   const outstanding =
     compareMoney(amountPaid || "0", total) < 0;
 
@@ -195,7 +205,7 @@ export function SalesPage() {
   const sales = salesQuery.data?.items ?? [];
 
   return (
-    <section className="space-y-5">
+    <section className={`space-y-5 ${cart.length > 0 ? "pb-28 md:pb-0" : ""}`}>
       <PageHeader title={messages.headline} description={messages.body} />
 
       {pageError ? (
@@ -253,7 +263,7 @@ export function SalesPage() {
         ) : (
           <ul className="space-y-3">
             {cart.map((line) => (
-              <li key={line.productId} className="grid gap-2 sm:grid-cols-[1fr_8rem_auto]">
+              <li key={line.productId} className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_8rem_auto] sm:items-end">
                 <div className="min-w-0">
                   <p className="truncate font-semibold text-ink-900">{line.name}</p>
                   <p className="text-sm text-ink-500">
@@ -275,6 +285,7 @@ export function SalesPage() {
                 />
                 <Button
                   variant="ghost"
+                  className="w-full sm:w-auto"
                   onClick={() =>
                     setCart((current) =>
                       current.filter((item) => item.productId !== line.productId),
@@ -345,14 +356,34 @@ export function SalesPage() {
           onChange={(event) => setNotes(event.target.value)}
         />
 
-        <Button
-          className="w-full"
-          disabled={submitting || cart.length === 0}
-          onClick={() => void confirmSale()}
-        >
-          {submitting ? messages.confirming : messages.confirm}
-        </Button>
+        <div className="hidden md:block">
+          <Button
+            className="w-full"
+            disabled={submitting || cart.length === 0}
+            onClick={() => void confirmSale()}
+          >
+            {submitting ? messages.confirming : messages.confirm}
+          </Button>
+        </div>
       </div>
+
+      {cart.length > 0 ? (
+        <div className="fixed inset-x-0 bottom-[calc(4.25rem+env(safe-area-inset-bottom))] z-30 border-t border-ink-300/80 bg-white/95 px-4 py-3 shadow-soft backdrop-blur md:hidden">
+          <div className="mx-auto flex max-w-3xl items-center gap-3">
+            <p className="min-w-0 flex-1 text-sm font-bold text-ink-900">
+              {messages.total} {formatMoney(total)}
+            </p>
+            <Button
+              className="min-h-12 shrink-0 px-4"
+              disabled={submitting}
+              onClick={() => void confirmSale()}
+            >
+              {submitting ? messages.confirming : messages.confirm}
+            </Button>
+          </div>
+          {pageError ? <p className="mx-auto mt-2 max-w-3xl text-sm text-danger-600">{pageError}</p> : null}
+        </div>
+      ) : null}
 
       <div className="space-y-3">
         <h2 className="text-lg font-semibold text-ink-900">{messages.recent}</h2>
@@ -367,9 +398,9 @@ export function SalesPage() {
                 key={sale.id}
                 className="rounded-2xl border border-ink-300/70 bg-white px-4 py-3 shadow-soft"
               >
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className="font-semibold text-ink-900">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="min-w-0">
+                    <p className="break-words font-semibold text-ink-900">
                       {sale.receiptNumber} · {formatMoney(sale.total)}
                     </p>
                     <p className="text-sm text-ink-500">
@@ -378,7 +409,11 @@ export function SalesPage() {
                     </p>
                   </div>
                   {sale.status !== "VOIDED" ? (
-                    <Button variant="ghost" onClick={() => void handleVoid(sale)}>
+                    <Button
+                      variant="ghost"
+                      className="w-full sm:w-auto"
+                      onClick={() => void handleVoid(sale)}
+                    >
                       {messages.voidSale}
                     </Button>
                   ) : null}
