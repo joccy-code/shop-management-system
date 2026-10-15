@@ -14,7 +14,8 @@ vi.mock("@/features/customers/api", () => ({
   removeCustomer: vi.fn(),
 }));
 
-import { listCustomers, removeCustomer } from "@/features/customers/api";
+import { createCustomer, getCustomer, listCustomers, removeCustomer } from "@/features/customers/api";
+import { ApiError } from "@/lib/api";
 
 const paid: Customer = {
   id: "c-paid",
@@ -90,5 +91,41 @@ describe("CustomersPage", () => {
     );
     expect(screen.getByText("Sara Bekele")).toBeInTheDocument();
     confirm.mockRestore();
+  });
+
+  it("shows a newly added customer in the list", async () => {
+    const created = { ...paid, id: "c-new", name: "Liya Alemu" };
+    vi.mocked(listCustomers)
+      .mockResolvedValueOnce(page([]))
+      .mockResolvedValue(page([created]));
+    vi.mocked(createCustomer).mockResolvedValue(created);
+    vi.mocked(getCustomer).mockResolvedValue({ ...created, sales: [], repayments: [] });
+
+    const user = userEvent.setup();
+    renderPage();
+    expect(await screen.findByText("No customers yet")).toBeInTheDocument();
+
+    await user.type(screen.getByLabelText("Customer name"), "Liya Alemu");
+    await user.click(screen.getByRole("button", { name: "Add customer" }));
+
+    expect(await screen.findAllByText("Liya Alemu")).toHaveLength(2);
+    expect(document.getElementById("customer-c-new")).toBeInTheDocument();
+    expect(createCustomer).toHaveBeenCalledWith({
+      name: "Liya Alemu",
+      phone: null,
+      notes: null,
+    });
+  });
+
+  it("shows a load error instead of an empty list when customers cannot be loaded", async () => {
+    vi.mocked(listCustomers).mockRejectedValue(
+      new ApiError(500, "INTERNAL_ERROR", "Something went wrong. Please try again."),
+    );
+    renderPage();
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Something went wrong. Please try again.",
+    );
+    expect(screen.queryByText("No customers yet")).not.toBeInTheDocument();
   });
 });

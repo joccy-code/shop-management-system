@@ -251,6 +251,7 @@ export const am: Messages = {
     history: "ክፍያዎች",
     noOpenSales: "ለዚህ ደንበኛ ክፍት ቀሪ ሒሳብ የለም።",
     search: "ደንበኞችን ይፈልጉ",
+    loadError: "ደንበኞችን መጫን አልተቻለም።",
     remove: "አስወግድ",
     removeConfirm: "ይህን ደንበኛ ያስወግዳሉ? ያለፉ ሽያጮች በታሪክ ይቆያሉ።",
     stillOwes: "ይህ ደንበኛ ገና ዕዳ አለበት። ከማስወገድዎ በፊት ክፍያውን ይመዝግቡ።",
