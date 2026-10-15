@@ -1,5 +1,6 @@
 import { Menu, Settings, Users, Wallet, X } from "lucide-react";
 import { useEffect, useId, useState } from "react";
+import { createPortal } from "react-dom";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/Button";
 import { t, useMessages } from "@/i18n";
@@ -32,8 +33,13 @@ export function MoreMenu() {
       }
     };
 
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
     window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", onKeyDown);
+    };
   }, [open]);
 
   return (
@@ -49,53 +55,56 @@ export function MoreMenu() {
         <Menu className="h-5 w-5" aria-hidden="true" />
       </Button>
 
-      {open ? (
-        <div className="fixed inset-0 z-50">
-          <button
-            type="button"
-            className="absolute inset-0 bg-ink-900/40"
-            aria-label={messages.nav.closeMenu}
-            onClick={() => setOpen(false)}
-          />
-          <div
-            id="more-menu-panel"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby={titleId}
-            className="absolute inset-x-0 bottom-0 max-h-[85dvh] overflow-y-auto rounded-t-3xl bg-white p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] shadow-soft"
-          >
-            <div className="mb-4 flex items-center justify-between">
-              <h2 id={titleId} className="text-lg font-semibold text-ink-900">
-                {messages.nav.more}
-              </h2>
-              <Button
-                variant="ghost"
-                className="min-h-11 px-3"
+      {open
+        ? createPortal(
+            <div className="fixed inset-0 z-50 md:hidden">
+              <button
+                type="button"
+                className="absolute inset-0 bg-ink-900/40"
+                aria-label={messages.nav.closeMenu}
                 onClick={() => setOpen(false)}
+              />
+              <div
+                id="more-menu-panel"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby={titleId}
+                className="absolute inset-x-0 bottom-0 max-h-[85dvh] overflow-y-auto rounded-t-3xl bg-white p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] shadow-soft"
               >
-                <X className="h-4 w-4" aria-hidden="true" />
-                {messages.nav.closeMenu}
-              </Button>
-            </div>
-            <ul className="space-y-2">
-              {items.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <li key={item.to}>
-                    <Link
-                      to={item.to}
-                      className="flex min-h-14 items-center gap-3 rounded-xl border border-ink-300 px-4 text-base font-semibold text-ink-900"
-                    >
-                      <Icon className="h-5 w-5 text-brand-700" aria-hidden="true" />
-                      {messages.nav[item.labelKey]}
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-        </div>
-      ) : null}
+                <div className="mb-4 flex items-center justify-between gap-3">
+                  <h2 id={titleId} className="text-lg font-semibold text-ink-900">
+                    {messages.nav.more}
+                  </h2>
+                  <Button
+                    variant="ghost"
+                    className="min-h-11 shrink-0 px-3"
+                    onClick={() => setOpen(false)}
+                  >
+                    <X className="h-4 w-4" aria-hidden="true" />
+                    {messages.nav.closeMenu}
+                  </Button>
+                </div>
+                <ul className="space-y-2">
+                  {items.map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <li key={item.to}>
+                        <Link
+                          to={item.to}
+                          className="flex min-h-14 items-center gap-3 rounded-xl border border-ink-300 px-4 text-base font-semibold text-ink-900"
+                        >
+                          <Icon className="h-5 w-5 text-brand-700" aria-hidden="true" />
+                          {messages.nav[item.labelKey]}
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            </div>,
+            document.body,
+          )
+        : null}
     </div>
   );
 }
