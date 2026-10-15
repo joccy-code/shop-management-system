@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Shop Manager">
+  <rect width="64" height="64" rx="14" fill="#15803d"/>
+  <path d="M18 22h28l-2.5 18.5A6 6 0 0 1 37.6 46H26.4a6 6 0 0 1-5.9-5.5L18 22Z" fill="#fff" opacity=".95"/>
+  <path d="M24 22a8 8 0 0 1 16 0" fill="none" stroke="#bbf7d0" stroke-width="3" stroke-linecap="round"/>
+</svg>
