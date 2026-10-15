@@ -48,6 +48,8 @@ server {
 - Never commit `.env` files or database passwords.
 - Run `npm run prisma:migrate:deploy -w backend` before starting the API.
 - Confirm `GET /api/v1/health` and `GET /api/v1/ready` after boot.
+- The API trusts one proxy hop (`trust proxy`) so Nginx can supply the client IP used by login rate limits.
+- Serve `frontend/dist` as static files, including `sw.js`, `manifest.webmanifest`, and `icons/`. The service worker must stay same-origin and must not be configured to cache `/api`.
 
 ## Security reminders
 

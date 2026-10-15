@@ -5,6 +5,7 @@ import helmet from "helmet";
 import { pinoHttp } from "pino-http";
 import { loadEnv } from "./lib/env.js";
 import { logger } from "./lib/logger.js";
+import { csrfProtection } from "./middleware/csrf.js";
 import { errorHandler, notFoundHandler } from "./middleware/error-handler.js";
 import { apiV1Router } from "./routes/index.js";
 
@@ -13,6 +14,7 @@ export function createApp() {
   const app = express();
 
   app.disable("x-powered-by");
+  app.set("trust proxy", 1);
   app.use(helmet());
   app.use(
     pinoHttp({
@@ -32,6 +34,7 @@ export function createApp() {
 
   app.use(express.json({ limit: "1mb" }));
   app.use(cookieParser());
+  app.use("/api/v1", csrfProtection);
 
   app.get("/", (_req, res) => {
     res.json({

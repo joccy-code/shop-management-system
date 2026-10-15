@@ -28,3 +28,10 @@ export function login(payload: LoginPayload): Promise<AuthUser> {
 export function logout(): Promise<{ loggedOut: boolean }> {
   return api.post<{ loggedOut: boolean }>("/auth/logout");
 }
+
+export function changePassword(payload: {
+  currentPassword: string;
+  newPassword: string;
+}): Promise<{ updated: boolean }> {
+  return api.post<{ updated: boolean }>("/auth/change-password", payload);
+}

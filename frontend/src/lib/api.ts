@@ -17,14 +17,25 @@ type ApiErrorBody = {
 };
 
 async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
-  const response = await fetch(`/api/v1${path}`, {
-    credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-      ...init.headers,
-    },
-    ...init,
-  });
+  const { headers: extraHeaders, ...rest } = init;
+  let response: Response;
+  try {
+    response = await fetch(`/api/v1${path}`, {
+      ...rest,
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Shop-Manager": "1",
+        ...(extraHeaders ?? {}),
+      },
+    });
+  } catch {
+    throw new ApiError(
+      0,
+      "NETWORK",
+      "An internet connection is required to save this.",
+    );
+  }
 
   let body: ApiSuccessBody<T> | ApiErrorBody | null = null;
   try {
@@ -48,9 +59,10 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
 
 export const api = {
   get: <T>(path: string): Promise<T> => request<T>(path),
-  post: <T>(path: string, data?: unknown): Promise<T> =>
+  post: <T>(path: string, data?: unknown, headers?: HeadersInit): Promise<T> =>
     request<T>(path, {
       method: "POST",
+      ...(headers ? { headers } : {}),
       ...(data === undefined ? {} : { body: JSON.stringify(data) }),
     }),
   patch: <T>(path: string, data?: unknown): Promise<T> =>

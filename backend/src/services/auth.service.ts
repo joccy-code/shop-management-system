@@ -8,7 +8,11 @@ import {
   hashToken,
   type SessionToken,
 } from "../lib/session-token.js";
-import type { LoginInput, RegisterInput } from "../schemas/auth.schema.js";
+import type {
+  ChangePasswordInput,
+  LoginInput,
+  RegisterInput,
+} from "../schemas/auth.schema.js";
 
 export type AuthenticatedUser = {
   shop: Shop;
@@ -84,6 +88,40 @@ export async function authenticate(
   }
 
   return { shop: user.shop, user };
+}
+
+export async function changePassword(
+  userId: string,
+  input: ChangePasswordInput,
+): Promise<void> {
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+
+  if (!user || !user.isActive) {
+    throw new AppError(401, "AUTH_REQUIRED", "Sign in to continue.");
+  }
+
+  const valid = await verifyPassword(input.currentPassword, user.passwordHash);
+  if (!valid) {
+    throw new AppError(
+      401,
+      "INVALID_CREDENTIALS",
+      "Current password is incorrect.",
+    );
+  }
+
+  if (input.currentPassword === input.newPassword) {
+    throw new AppError(
+      400,
+      "PASSWORD_UNCHANGED",
+      "Choose a password that is different from the current one.",
+    );
+  }
+
+  const passwordHash = await hashPassword(input.newPassword);
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { passwordHash },
+  });
 }
 
 export async function createSession(

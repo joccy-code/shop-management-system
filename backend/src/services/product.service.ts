@@ -161,16 +161,22 @@ export async function adjustStock(
   input: StockAdjustmentInput,
 ): Promise<StockAdjustmentResult> {
   return prisma.$transaction(async (tx) => {
-    const product = await tx.product.findFirst({
-      where: { id: productId, shopId },
-    });
+    const locked = await tx.$queryRaw<
+      Array<{ id: string; stock_quantity: Prisma.Decimal | string }>
+    >`
+      SELECT id, stock_quantity
+      FROM products
+      WHERE id = ${productId} AND shop_id = ${shopId}
+      FOR UPDATE
+    `;
+    const product = locked[0];
 
     if (!product) {
       throw new AppError(404, "NOT_FOUND", "Product not found.");
     }
 
     const change = new Decimal(input.quantityChange);
-    const newQuantity = new Decimal(product.stockQuantity).plus(change);
+    const newQuantity = new Decimal(product.stock_quantity).plus(change);
 
     if (newQuantity.isNegative()) {
       throw new AppError(

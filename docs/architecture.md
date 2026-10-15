@@ -60,10 +60,16 @@ and cookie model stays the same.
 - Stock adjustments backed by an auditable inventory movement log, with
   low-stock and out-of-stock indicators in the UI
 
+## What Phases 3–7 add
+
+- Phase 3: mobile checkout that saves a sale, line snapshots, payment, and stock movements in one transaction, with an `Idempotency-Key` so a repeated submit does not sell twice
+- Phase 4: expense records that are voided rather than deleted, customer records, and repayments that cannot exceed the outstanding balance
+- Phase 5: dashboard and reports calculated from the database, including an estimated profit figure that is labeled as an estimate
+- Phase 6: installable PWA with a service worker that caches static assets only, plus a written offline-sales plan
+- Phase 7: origin checks on mutating requests, login rate limits, password change, pagination on new lists, and a release checklist
+
 ## What comes next
 
-- Phase 3: transactional sales checkout
-- Phase 4: expenses and customer credit
-- Phase 5: dashboard and reports
-- Phase 6: PWA installability
-- Phase 7: production readiness hardening
+- Real SMS delivery, if a provider is configured later
+- Full offline sale sync, described in [offline sales](offline-sales.md)
+- Subscription billing, which stays unused
