@@ -250,6 +250,9 @@ export const en = {
     history: "Repayments",
     noOpenSales: "This customer has no open balance.",
     search: "Search customers",
+    remove: "Remove",
+    removeConfirm: "Remove this customer? Past sales stay in the history.",
+    stillOwes: "This customer still owes money. Record the repayment before removing them.",
   },
   settings: {
     title: "Settings",

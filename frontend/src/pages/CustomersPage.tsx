@@ -10,6 +10,7 @@ import {
   getCustomer,
   listCustomers,
   recordRepayment,
+  removeCustomer,
 } from "@/features/customers/api";
 import { t, useMessages } from "@/i18n";
 import { ApiError } from "@/lib/api";
@@ -58,6 +59,36 @@ export function CustomersPage() {
       await queryClient.invalidateQueries({ queryKey: ["customers"] });
     } catch (error) {
       setPageError(error instanceof ApiError ? error.message : t().common.saveError);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const removeSelectedCustomer = async (customerId: string, outstanding: string) => {
+    if (Number(outstanding) > 0) {
+      setPageError(messages.stillOwes);
+      return;
+    }
+    if (typeof window !== "undefined" && !window.confirm(messages.removeConfirm)) {
+      return;
+    }
+    setPageError(null);
+    setSubmitting(true);
+    try {
+      await removeCustomer(customerId);
+      if (selectedId === customerId) {
+        setSelectedId(null);
+      }
+      await queryClient.invalidateQueries({ queryKey: ["customers"] });
+      await queryClient.invalidateQueries({ queryKey: ["customer", customerId] });
+    } catch (error) {
+      setPageError(
+        error instanceof ApiError && error.code === "CUSTOMER_HAS_BALANCE"
+          ? messages.stillOwes
+          : error instanceof ApiError
+            ? error.message
+            : t().common.saveError,
+      );
     } finally {
       setSubmitting(false);
     }
@@ -139,20 +170,33 @@ export function CustomersPage() {
       ) : (
         <ul className="space-y-2">
           {customers.map((customer) => (
-            <li key={customer.id}>
+            <li
+              key={customer.id}
+              className="flex items-stretch gap-2 rounded-2xl border border-ink-300/70 bg-white shadow-soft"
+            >
               <button
                 type="button"
-                className="flex w-full items-center justify-between gap-3 rounded-2xl border border-ink-300/70 bg-white px-4 py-3 text-left shadow-soft"
+                className="flex min-w-0 flex-1 items-center justify-between gap-3 px-4 py-3 text-left"
                 onClick={() => setSelectedId(customer.id)}
               >
-                <span>
-                  <span className="block font-semibold text-ink-900">{customer.name}</span>
-                  <span className="block text-sm text-ink-500">{customer.phone ?? "—"}</span>
+                <span className="min-w-0">
+                  <span className="block truncate font-semibold text-ink-900">{customer.name}</span>
+                  <span className="block truncate text-sm text-ink-500">{customer.phone ?? "—"}</span>
                 </span>
-                <span className="text-sm font-semibold text-ink-900">
+                <span className="shrink-0 text-sm font-semibold text-ink-900">
                   {formatMoney(customer.outstandingBalance)}
                 </span>
               </button>
+              <Button
+                variant="ghost"
+                className="min-h-10 shrink-0 self-center px-3 text-sm text-danger-600"
+                disabled={submitting}
+                onClick={() =>
+                  void removeSelectedCustomer(customer.id, customer.outstandingBalance)
+                }
+              >
+                {messages.remove}
+              </Button>
             </li>
           ))}
         </ul>
@@ -160,11 +204,23 @@ export function CustomersPage() {
 
       {detail ? (
         <div className="space-y-4 rounded-2xl border border-ink-300/70 bg-white p-4 shadow-soft">
-          <div>
-            <h2 className="text-lg font-semibold text-ink-900">{detail.name}</h2>
-            <p className="text-sm text-ink-500">
-              {messages.outstanding} {formatMoney(detail.outstandingBalance)}
-            </p>
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <h2 className="text-lg font-semibold text-ink-900">{detail.name}</h2>
+              <p className="text-sm text-ink-500">
+                {messages.outstanding} {formatMoney(detail.outstandingBalance)}
+              </p>
+            </div>
+            <Button
+              variant="ghost"
+              className="min-h-10 px-3 text-sm text-danger-600"
+              disabled={submitting}
+              onClick={() =>
+                void removeSelectedCustomer(detail.id, detail.outstandingBalance)
+              }
+            >
+              {messages.remove}
+            </Button>
           </div>
 
           {openSales.length === 0 ? (

@@ -169,7 +169,7 @@ export async function createSale(
 
       if (customerId) {
         const customer = await tx.customer.findFirst({
-          where: { id: customerId, shopId },
+          where: { id: customerId, shopId, removedAt: null },
         });
         if (!customer) {
           throw new AppError(

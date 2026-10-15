@@ -50,6 +50,10 @@ export function getCustomer(customerId: string): Promise<CustomerDetail> {
   return api.get<CustomerDetail>(`/customers/${customerId}`);
 }
 
+export function removeCustomer(customerId: string): Promise<{ removed: boolean }> {
+  return api.delete(`/customers/${customerId}`);
+}
+
 export function recordRepayment(
   customerId: string,
   payload: { saleId: string; amount: string; method: string; note?: string | null },
