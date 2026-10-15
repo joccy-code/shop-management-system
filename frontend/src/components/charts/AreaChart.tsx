@@ -225,7 +225,7 @@ export function AreaChart({
         ))}
       </div>
       {selected ? (
-        <p className="mt-2 text-sm text-ink-700">
+        <p className="mt-2 break-words text-sm text-ink-700">
           <span className="font-semibold text-ink-900">{selected.title}</span>
           {series.map((item) => (
             <span key={item.key}>

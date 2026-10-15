@@ -125,7 +125,7 @@ export function ProductsPage() {
         <PageHeader title={messages.headline} description={messages.body} />
         <Button
           onClick={() => setModalState({ mode: "create" })}
-          className="shrink-0"
+          className="w-full shrink-0 sm:w-auto"
         >
           <Plus className="h-4 w-4" aria-hidden="true" />
           {messages.addProduct}
@@ -137,7 +137,7 @@ export function ProductsPage() {
         onChange={(event) => setSearchInput(event.target.value)}
         placeholder={messages.searchPlaceholder}
         aria-label={messages.searchPlaceholder}
-        className="min-h-12 w-full rounded-xl border border-ink-300 bg-white px-4 text-base text-ink-900 outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-200"
+        className="min-h-12 w-full min-w-0 max-w-full rounded-xl border border-ink-300 bg-white px-4 text-base text-ink-900 outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-200"
       />
 
       {pageError ? (
@@ -166,9 +166,9 @@ export function ProductsPage() {
                 key={product.id}
                 className="rounded-2xl border border-ink-300/70 bg-white p-4 shadow-soft"
               >
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className="font-semibold text-ink-900">
+                <div className="flex flex-wrap items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <p className="break-words font-semibold text-ink-900">
                       {product.name}
                     </p>
                     <p className="text-xs text-ink-500">
@@ -199,24 +199,24 @@ export function ProductsPage() {
                       : ""}
                 </p>
 
-                <div className="mt-3 flex flex-wrap gap-2">
+                <div className="mt-3 grid grid-cols-1 gap-2 sm:flex sm:flex-wrap">
                   <Button
                     variant="secondary"
-                    className="min-h-10 px-3 text-sm"
+                    className="min-h-12 w-full sm:w-auto"
                     onClick={() => setModalState({ mode: "edit", product })}
                   >
                     {messages.editProduct}
                   </Button>
                   <Button
                     variant="secondary"
-                    className="min-h-10 px-3 text-sm"
+                    className="min-h-12 w-full sm:w-auto"
                     onClick={() => setModalState({ mode: "adjust", product })}
                   >
                     {messages.adjustStock}
                   </Button>
                   <Button
                     variant="ghost"
-                    className="min-h-10 px-3 text-sm text-danger-600"
+                    className="min-h-12 w-full text-danger-600 sm:w-auto"
                     onClick={() => void handleArchive(product)}
                   >
                     {messages.archiveProduct}

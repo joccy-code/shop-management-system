@@ -40,13 +40,13 @@ export function MoreMenu() {
     <div className="md:hidden">
       <Button
         variant="secondary"
-        className="min-h-11 px-3"
+        className="min-h-11 min-w-11 px-2.5"
+        aria-label={messages.nav.menu}
         aria-expanded={open}
         aria-controls="more-menu-panel"
         onClick={() => setOpen((value) => !value)}
       >
-        <Menu className="h-4 w-4" aria-hidden="true" />
-        {messages.nav.menu}
+        <Menu className="h-5 w-5" aria-hidden="true" />
       </Button>
 
       {open ? (
@@ -62,7 +62,7 @@ export function MoreMenu() {
             role="dialog"
             aria-modal="true"
             aria-labelledby={titleId}
-            className="absolute inset-x-0 bottom-0 rounded-t-3xl bg-white p-5 shadow-soft"
+            className="absolute inset-x-0 bottom-0 max-h-[85dvh] overflow-y-auto rounded-t-3xl bg-white p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] shadow-soft"
           >
             <div className="mb-4 flex items-center justify-between">
               <h2 id={titleId} className="text-lg font-semibold text-ink-900">
@@ -84,7 +84,7 @@ export function MoreMenu() {
                   <li key={item.to}>
                     <Link
                       to={item.to}
-                      className="flex min-h-12 items-center gap-3 rounded-xl border border-ink-300 px-4 text-sm font-semibold text-ink-900"
+                      className="flex min-h-14 items-center gap-3 rounded-xl border border-ink-300 px-4 text-base font-semibold text-ink-900"
                     >
                       <Icon className="h-5 w-5 text-brand-700" aria-hidden="true" />
                       {messages.nav[item.labelKey]}

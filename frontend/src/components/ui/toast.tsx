@@ -85,7 +85,7 @@ export function Toaster() {
   }
 
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-24 z-50 flex flex-col items-center gap-2 px-4 md:bottom-6">
+    <div className="pointer-events-none fixed inset-x-0 bottom-[calc(var(--mobile-dock,6rem)+env(safe-area-inset-bottom))] z-50 flex flex-col items-center gap-2 px-4 md:bottom-6">
       {items.map((item) => (
         <div
           key={item.id}

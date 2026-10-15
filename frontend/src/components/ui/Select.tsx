@@ -20,7 +20,7 @@ export function Select({
   const selectId = id ?? generatedId;
 
   return (
-    <div className="space-y-1.5">
+    <div className="min-w-0 max-w-full space-y-1.5">
       <label
         htmlFor={selectId}
         className="block text-sm font-semibold text-ink-900"
@@ -29,7 +29,7 @@ export function Select({
       </label>
       <select
         id={selectId}
-        className={`min-h-12 w-full rounded-xl border bg-white px-3.5 text-base text-ink-900 outline-none transition focus:border-brand-600 focus:ring-2 focus:ring-brand-200 ${
+        className={`min-h-12 w-full min-w-0 max-w-full rounded-xl border bg-white px-3.5 text-base text-ink-900 outline-none transition focus:border-brand-600 focus:ring-2 focus:ring-brand-200 ${
           error ? "border-danger-600" : "border-ink-300"
         } ${className}`}
         {...props}

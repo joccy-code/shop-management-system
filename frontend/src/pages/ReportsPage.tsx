@@ -36,9 +36,9 @@ function amount(value: string): number {
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-ink-300/70 bg-white px-4 py-3 shadow-soft">
-      <p className="text-xs font-semibold uppercase tracking-wide text-ink-500">{label}</p>
-      <p className="mt-1 text-lg font-bold text-ink-900">{value}</p>
+    <div className="min-w-0 rounded-2xl border border-ink-300/70 bg-white px-4 py-3 shadow-soft">
+      <p className="break-words text-xs font-semibold uppercase tracking-wide text-ink-500">{label}</p>
+      <p className="mt-1 break-words text-base font-bold text-ink-900 sm:text-lg">{value}</p>
     </div>
   );
 }

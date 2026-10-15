@@ -30,10 +30,10 @@ function AttentionCard({
   return (
     <Link
       to={to}
-      className="rounded-2xl border border-ink-300/70 bg-white p-4 shadow-soft transition hover:border-brand-600"
+      className="min-w-0 rounded-2xl border border-ink-300/70 bg-white p-4 shadow-soft transition hover:border-brand-600"
     >
-      <p className="text-sm font-semibold text-ink-500">{label}</p>
-      <p className={`mt-1 text-xl font-bold ${alert ? "text-warning-600" : "text-ink-900"}`}>
+      <p className="text-sm font-semibold leading-snug text-ink-500">{label}</p>
+      <p className={`mt-1 break-words text-lg font-bold sm:text-xl ${alert ? "text-warning-600" : "text-ink-900"}`}>
         {value}
       </p>
     </Link>
@@ -72,14 +72,14 @@ export function HomePage() {
             <Link
               key={action.to}
               to={action.to}
-              className={`flex min-h-14 items-center gap-3 rounded-2xl px-4 text-sm font-semibold shadow-soft ${
+              className={`flex min-h-16 min-w-0 items-center gap-2 rounded-2xl px-3 py-3 text-sm font-semibold leading-snug shadow-soft ${
                 action.primary
                   ? "bg-brand-700 text-white"
                   : "border border-ink-300/70 bg-white text-ink-900"
               }`}
             >
               <Icon className="h-5 w-5 shrink-0" aria-hidden="true" />
-              {messages[action.labelKey]}
+              <span className="min-w-0">{messages[action.labelKey]}</span>
             </Link>
           );
         })}
@@ -118,19 +118,19 @@ function Dashboard({
     <>
       <div className="rounded-3xl bg-brand-700 px-5 py-5 text-white shadow-soft">
         <p className="text-sm font-semibold text-brand-100">{messages.salesToday}</p>
-        <p className="mt-1 text-3xl font-bold tracking-tight">{formatMoney(data.salesToday)}</p>
-        <dl className="mt-4 grid grid-cols-3 gap-3 border-t border-white/20 pt-4 text-sm">
-          <div className="min-w-0">
+        <p className="mt-1 break-words text-3xl font-bold tracking-tight">{formatMoney(data.salesToday)}</p>
+        <dl className="mt-4 grid grid-cols-1 gap-2 border-t border-white/20 pt-4 text-sm sm:grid-cols-3 sm:gap-3">
+          <div className="flex min-w-0 items-baseline justify-between gap-3 sm:block">
             <dt className="text-brand-100">{messages.heroMonth}</dt>
-            <dd className="mt-1 font-semibold">{formatMoney(data.salesThisMonth)}</dd>
+            <dd className="font-semibold sm:mt-1">{formatMoney(data.salesThisMonth)}</dd>
           </div>
-          <div className="min-w-0">
+          <div className="flex min-w-0 items-baseline justify-between gap-3 sm:block">
             <dt className="text-brand-100">{messages.heroCollected}</dt>
-            <dd className="mt-1 font-semibold">{formatMoney(data.collectedInPeriod)}</dd>
+            <dd className="font-semibold sm:mt-1">{formatMoney(data.collectedInPeriod)}</dd>
           </div>
-          <div className="min-w-0">
+          <div className="flex min-w-0 items-baseline justify-between gap-3 sm:block">
             <dt className="text-brand-100">{messages.heroExpenses}</dt>
-            <dd className="mt-1 font-semibold">{formatMoney(data.expensesToday)}</dd>
+            <dd className="font-semibold sm:mt-1">{formatMoney(data.expensesToday)}</dd>
           </div>
         </dl>
       </div>
@@ -159,8 +159,8 @@ function Dashboard({
       </div>
 
       <div className="rounded-2xl border border-ink-300/70 bg-white p-4 shadow-soft">
-        <div className="mb-3 flex items-center justify-between gap-3">
-          <h2 className="font-semibold text-ink-900">{messages.lastDays}</h2>
+        <div className="mb-3 flex items-start justify-between gap-3">
+          <h2 className="min-w-0 font-semibold text-ink-900">{messages.lastDays}</h2>
           <Link className="text-sm font-semibold text-brand-700" to="/reports">
             {messages.seeAll}
           </Link>
