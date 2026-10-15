@@ -181,7 +181,7 @@ export async function dashboardReport(shopId: string, query: ReportRangeQuery) {
       amountPaid: new Decimal(sale.amountPaid).toFixed(2),
       outstandingBalance: new Decimal(sale.outstandingBalance).toFixed(2),
       soldAt: sale.soldAt.toISOString(),
-      customerName: sale.customer?.name ?? null,
+      customerName: sale.customerNameSnapshot ?? sale.customer?.name ?? null,
     })),
     salesTrend,
     profitNote: PROFIT_NOTE,

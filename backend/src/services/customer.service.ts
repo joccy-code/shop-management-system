@@ -254,8 +254,20 @@ export async function removeCustomer(shopId: string, customerId: string): Promis
     );
   }
 
-  await prisma.customer.update({
-    where: { id: customer.id },
-    data: { removedAt: new Date() },
+  await prisma.$transaction(async (tx) => {
+    await tx.sale.updateMany({
+      where: {
+        shopId,
+        customerId: customer.id,
+        customerNameSnapshot: null,
+      },
+      data: { customerNameSnapshot: customer.name },
+    });
+    await tx.customerRepayment.deleteMany({
+      where: { shopId, customerId: customer.id },
+    });
+    await tx.customer.delete({
+      where: { id: customer.id },
+    });
   });
 }

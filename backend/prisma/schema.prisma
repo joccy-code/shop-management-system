@@ -194,6 +194,7 @@ model Sale {
   shopId            String     @map("shop_id")
   recordedByUserId  String?    @map("recorded_by_user_id")
   customerId        String?    @map("customer_id")
+  customerNameSnapshot String? @map("customer_name_snapshot")
   receiptNumber     String     @map("receipt_number")
   status            SaleStatus @default(COMPLETED)
   subtotal          Decimal    @db.Decimal(12, 2)
@@ -312,7 +313,7 @@ model CustomerRepayment {
   createdAt DateTime @default(now()) @map("created_at")
 
   shop     Shop     @relation(fields: [shopId], references: [id], onDelete: Restrict)
-  customer Customer @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
   sale     Sale     @relation(fields: [saleId], references: [id], onDelete: Restrict)
 
   @@index([shopId, paidAt])

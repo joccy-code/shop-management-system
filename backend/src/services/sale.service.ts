@@ -157,6 +157,7 @@ export async function createSale(
           : "PARTIALLY_PAID";
 
       let customerId: string | null = input.customerId ?? null;
+      let customerNameSnapshot: string | null = null;
       if (outstanding.greaterThan(0)) {
         if (!customerId) {
           throw new AppError(
@@ -178,6 +179,7 @@ export async function createSale(
             "Select a customer from this shop.",
           );
         }
+        customerNameSnapshot = customer.name;
       } else {
         customerId = null;
       }
@@ -190,6 +192,7 @@ export async function createSale(
           shopId,
           recordedByUserId: userId,
           customerId,
+          customerNameSnapshot,
           receiptNumber,
           status,
           subtotal: subtotal.toFixed(2),
