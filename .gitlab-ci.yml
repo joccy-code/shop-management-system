@@ -1,0 +1,46 @@
+stages:
+  - verify
+
+# Confirms the deploy key can sign in to the VPS and write the app directory.
+# GitLab File variables are mode 0666 and often omit the final newline.
+# OpenSSH 10 reports that as "error in libcrypto" or "bad permissions".
+test_vps_ssh:
+  stage: verify
+  image: alpine:3.22
+  before_script:
+    - apk add --no-cache openssh-client
+    - |
+      if [ -z "${SSH_PRIVATE_KEY:-}" ] || [ ! -f "$SSH_PRIVATE_KEY" ]; then
+        echo "ERROR: SSH_PRIVATE_KEY must be a File CI/CD variable"
+        exit 1
+      fi
+      if [ -z "${SSH_KNOWN_HOSTS:-}" ] || [ ! -f "$SSH_KNOWN_HOSTS" ]; then
+        echo "ERROR: SSH_KNOWN_HOSTS must be a File CI/CD variable"
+        exit 1
+      fi
+      if [ -z "${VPS_USER:-}" ] || [ -z "${VPS_HOST:-}" ]; then
+        echo "ERROR: VPS_USER and VPS_HOST must be set"
+        exit 1
+      fi
+      install -d -m 700 "$HOME/.ssh"
+      tr -d '\r' < "$SSH_PRIVATE_KEY" > "$HOME/.ssh/id_deploy"
+      printf '\n' >> "$HOME/.ssh/id_deploy"
+      chmod 600 "$HOME/.ssh/id_deploy"
+      tr -d '\r' < "$SSH_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
+      printf '\n' >> "$HOME/.ssh/known_hosts"
+      chmod 644 "$HOME/.ssh/known_hosts"
+      if ! ssh-keygen -y -f "$HOME/.ssh/id_deploy" >/dev/null; then
+        echo "ERROR: SSH_PRIVATE_KEY is not a usable private key. Paste the private key, including the BEGIN and END lines, into the File variable."
+        exit 1
+      fi
+  script:
+    - |
+      ssh \
+        -i "$HOME/.ssh/id_deploy" \
+        -o IdentitiesOnly=yes \
+        -o StrictHostKeyChecking=yes \
+        -o UserKnownHostsFile="$HOME/.ssh/known_hosts" \
+        "$VPS_USER@$VPS_HOST" \
+        'whoami && test -w /var/www/shop-management && echo "Shop deployment directory is writable"'
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
