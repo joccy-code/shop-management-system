@@ -1,0 +1,22 @@
+
+stages:
+  - verify
+
+test_vps_ssh:
+  stage: verify
+  image: alpine:3.22
+  before_script:
+    - apk add --no-cache openssh-client
+  script:
+    - test -f "$SSH_PRIVATE_KEY"
+    - test -f "$SSH_KNOWN_HOSTS"
+    - |
+      ssh \
+        -i "$SSH_PRIVATE_KEY" \
+        -o IdentitiesOnly=yes \
+        -o StrictHostKeyChecking=yes \
+        -o UserKnownHostsFile="$SSH_KNOWN_HOSTS" \
+        "$VPS_USER@$VPS_HOST" \
+        'whoami && test -w /var/www/shop-management && echo "Shop deployment directory is writable"'
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
