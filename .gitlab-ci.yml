@@ -7,6 +7,7 @@ test_vps_ssh:
   before_script:
     - apk add --no-cache openssh-client
   script:
+    - chmod 600 "$SSH_PRIVATE_KEY"
     - |
       ssh \
         -i "$SSH_PRIVATE_KEY" \
