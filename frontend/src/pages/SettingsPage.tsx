@@ -3,6 +3,7 @@ import { LanguageSwitch } from "@/components/i18n/LanguageSwitch";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Input } from "@/components/ui/Input";
+import { showToast } from "@/components/ui/toast";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { changePassword, logout } from "@/features/auth/api";
 import { useAuth, useInvalidateAuth } from "@/features/auth/useAuth";
@@ -44,10 +45,12 @@ export function SettingsPage() {
       setCurrentPassword("");
       setNewPassword("");
       setPasswordMessage(messages.passwordUpdated);
+      showToast(messages.passwordUpdated, { tone: "success" });
     } catch (error) {
-      setPasswordError(
-        error instanceof ApiError ? error.message : t().common.saveError,
-      );
+      const message =
+        error instanceof ApiError ? error.message : t().common.saveError;
+      setPasswordError(message);
+      showToast(message);
     } finally {
       setSavingPassword(false);
     }

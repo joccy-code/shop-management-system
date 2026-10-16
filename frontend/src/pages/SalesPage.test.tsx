@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { Toaster, clearToasts } from "@/components/ui/toast";
 import type { Product } from "@/features/products/types";
 import { SalesPage } from "./SalesPage";
 
@@ -47,12 +48,14 @@ function renderPage() {
   return render(
     <QueryClientProvider client={queryClient}>
       <SalesPage />
+      <Toaster />
     </QueryClientProvider>,
   );
 }
 
 describe("SalesPage", () => {
   beforeEach(() => {
+    clearToasts();
     vi.mocked(listProducts).mockResolvedValue([product]);
     vi.mocked(listSales).mockResolvedValue({
       items: [],
@@ -101,5 +104,27 @@ describe("SalesPage", () => {
     });
     expect(await screen.findByText(/SM-000001/)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Confirm sale" })).toBeDisabled();
+    await waitFor(() => {
+      expect(
+        screen
+          .getAllByRole("status")
+          .some((element) => element.textContent === "Sale saved"),
+      ).toBe(true);
+    });
+  });
+
+  it("shows an error toast when confirming a sale fails", async () => {
+    vi.mocked(createSale).mockRejectedValue(new Error("save failed"));
+
+    const user = userEvent.setup();
+    renderPage();
+
+    expect(await screen.findByText("Rice 1kg")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Add" }));
+    await user.click(screen.getAllByRole("button", { name: "Confirm sale" })[0]!);
+
+    expect(await screen.findByRole("status")).toHaveTextContent(
+      "An internet connection is required to save this.",
+    );
   });
 });

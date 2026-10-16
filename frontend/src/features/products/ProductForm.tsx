@@ -5,7 +5,9 @@ import { flushSync } from "react-dom";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
+import { showToast } from "@/components/ui/toast";
 import { t, useMessages } from "@/i18n";
+import { ApiError } from "@/lib/api";
 import { createProductFormSchema, type ProductFormValues } from "./schemas";
 import type { Category, Product } from "./types";
 
@@ -68,6 +70,8 @@ export function ProductForm({
       });
       setValue("categoryId", category.id);
       setNewCategoryName("");
+    } catch (error) {
+      showToast(error instanceof ApiError ? error.message : t().common.saveError);
     } finally {
       setCreatingCategory(false);
     }

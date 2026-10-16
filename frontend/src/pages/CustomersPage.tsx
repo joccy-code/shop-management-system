@@ -71,6 +71,7 @@ export function CustomersPage() {
         };
       });
       await queryClient.invalidateQueries({ queryKey: ["customers"] });
+      showToast(messages.added, { tone: "success" });
     } catch (error) {
       showToast(error instanceof ApiError ? error.message : t().common.saveError);
     } finally {
@@ -131,6 +132,7 @@ export function CustomersPage() {
       await queryClient.invalidateQueries({ queryKey: ["customers"] });
       await queryClient.invalidateQueries({ queryKey: ["dashboard"] });
       await queryClient.invalidateQueries({ queryKey: ["sales"] });
+      showToast(messages.repaymentRecorded, { tone: "success" });
     } catch (error) {
       showToast(error instanceof ApiError ? error.message : t().common.saveError);
     } finally {

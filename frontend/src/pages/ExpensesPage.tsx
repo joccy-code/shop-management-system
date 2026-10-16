@@ -5,6 +5,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { Input } from "@/components/ui/Input";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Select } from "@/components/ui/Select";
+import { showToast } from "@/components/ui/toast";
 import { createExpense, listExpenses, voidExpense } from "@/features/expenses/api";
 import { t, useMessages } from "@/i18n";
 import { ApiError } from "@/lib/api";
@@ -52,10 +53,12 @@ export function ExpensesPage() {
       setNote("");
       await queryClient.invalidateQueries({ queryKey: ["expenses"] });
       await queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+      showToast(messages.saved, { tone: "success" });
     } catch (error) {
-      setPageError(
-        error instanceof ApiError ? error.message : t().common.saveError,
-      );
+      const message =
+        error instanceof ApiError ? error.message : t().common.saveError;
+      setPageError(message);
+      showToast(message);
     } finally {
       setSubmitting(false);
     }
@@ -70,10 +73,12 @@ export function ExpensesPage() {
       await voidExpense(expenseId);
       await queryClient.invalidateQueries({ queryKey: ["expenses"] });
       await queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+      showToast(messages.voided, { tone: "success" });
     } catch (error) {
-      setPageError(
-        error instanceof ApiError ? error.message : t().common.saveError,
-      );
+      const message =
+        error instanceof ApiError ? error.message : t().common.saveError;
+      setPageError(message);
+      showToast(message);
     }
   };
 

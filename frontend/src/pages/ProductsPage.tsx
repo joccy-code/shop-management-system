@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Modal } from "@/components/ui/Modal";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { showToast } from "@/components/ui/toast";
 import {
   archiveProduct,
   createCategory,
@@ -84,11 +85,20 @@ export function ProductsPage() {
         });
       }
       await invalidateProducts();
+      showToast(
+        modalState.mode === "edit"
+          ? messages.productUpdated
+          : messages.productCreated,
+        { tone: "success" },
+      );
       closeModal();
     } catch (error) {
+      const message =
+        error instanceof ApiError ? error.message : messages.saveError;
       setPageError(
-        error instanceof ApiError ? error.message : messages.saveError,
+        message,
       );
+      showToast(message);
     } finally {
       setSubmitting(false);
     }
@@ -103,15 +113,20 @@ export function ProductsPage() {
     try {
       await archiveProduct(product.id);
       await invalidateProducts();
+      showToast(messages.productArchived, { tone: "success" });
     } catch (error) {
+      const message =
+        error instanceof ApiError ? error.message : messages.saveError;
       setPageError(
-        error instanceof ApiError ? error.message : messages.saveError,
+        message,
       );
+      showToast(message);
     }
   };
 
   const handleCreateCategory = async (name: string) => {
     const category = await createCategory(name);
+    showToast(messages.categoryCreated, { tone: "success" });
     await queryClient.invalidateQueries({ queryKey: ["categories"] });
     return category;
   };
@@ -255,6 +270,7 @@ export function ProductsPage() {
             onCancel={closeModal}
             onAdjusted={async () => {
               await invalidateProducts();
+              showToast(messages.stockAdjusted, { tone: "success" });
               closeModal();
             }}
           />

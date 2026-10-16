@@ -5,6 +5,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { Input } from "@/components/ui/Input";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Select } from "@/components/ui/Select";
+import { showToast } from "@/components/ui/toast";
 import { listCustomers } from "@/features/customers/api";
 import { listProducts } from "@/features/products/api";
 import type { Product } from "@/features/products/types";
@@ -175,12 +176,15 @@ export function SalesPage() {
       setCustomerId("");
       setAmountDirty(false);
       setMethod("CASH");
+      showToast(messages.successTitle, { tone: "success" });
       await queryClient.invalidateQueries({ queryKey: ["sales"] });
       await queryClient.invalidateQueries({ queryKey: ["products"] });
       await queryClient.invalidateQueries({ queryKey: ["customers"] });
       await queryClient.invalidateQueries({ queryKey: ["dashboard"] });
     } catch (error) {
-      setPageError(errorText(error, messages.connectionRequired));
+      const message = errorText(error, messages.connectionRequired);
+      setPageError(message);
+      showToast(message);
     } finally {
       setSubmitting(false);
     }
@@ -196,8 +200,11 @@ export function SalesPage() {
       await queryClient.invalidateQueries({ queryKey: ["sales"] });
       await queryClient.invalidateQueries({ queryKey: ["products"] });
       await queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+      showToast(messages.voided, { tone: "success" });
     } catch (error) {
-      setPageError(errorText(error, t().common.saveError));
+      const message = errorText(error, t().common.saveError);
+      setPageError(message);
+      showToast(message);
     }
   };
 

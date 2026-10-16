@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { showToast } from "@/components/ui/toast";
 import { t, useMessages } from "@/i18n";
 import { ApiError } from "@/lib/api";
 import { adjustStock } from "./api";
@@ -44,9 +45,10 @@ export function StockAdjustmentForm({
       await adjustStock(product.id, values);
       await onAdjusted();
     } catch (error) {
-      setFormError(
-        error instanceof ApiError ? error.message : messages.saveError,
-      );
+      const message =
+        error instanceof ApiError ? error.message : messages.saveError;
+      setFormError(message);
+      showToast(message);
     } finally {
       setSubmitting(false);
     }

@@ -3,6 +3,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { Toaster, clearToasts } from "@/components/ui/toast";
 import type { Product } from "@/features/products/types";
 import { ProductsPage } from "./ProductsPage";
 
@@ -18,6 +19,7 @@ vi.mock("@/features/products/api", () => ({
 }));
 
 import {
+  createCategory,
   createProduct,
   listCategories,
   listProducts,
@@ -50,6 +52,7 @@ function renderPage() {
       <MemoryRouter>
         <ProductsPage />
       </MemoryRouter>
+      <Toaster />
     </QueryClientProvider>,
   );
 }
@@ -57,6 +60,7 @@ function renderPage() {
 describe("ProductsPage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    clearToasts();
     vi.mocked(listCategories).mockResolvedValue([]);
   });
 
@@ -104,5 +108,68 @@ describe("ProductsPage", () => {
 
     await waitFor(() => expect(createProduct).toHaveBeenCalled());
     expect(await screen.findByText("Sugar 1kg")).toBeInTheDocument();
+    expect(await screen.findByRole("status")).toHaveTextContent("Product added.");
+  });
+
+  it("shows a toast when saving a product fails", async () => {
+    vi.mocked(listProducts).mockResolvedValue([]);
+    vi.mocked(createProduct).mockRejectedValue(new Error("save failed"));
+
+    const user = userEvent.setup();
+    renderPage();
+
+    await user.click(
+      await screen.findByRole("button", { name: /add product/i }),
+    );
+    await user.type(screen.getByLabelText("Product name"), "Sugar 1kg");
+    await user.type(screen.getByLabelText("Selling price"), "95.50");
+    await user.type(screen.getByLabelText("Unit cost"), "80");
+    await user.click(screen.getByRole("button", { name: "Save product" }));
+
+    expect(await screen.findByRole("status")).toHaveTextContent(
+      "Could not save the product. Please try again.",
+    );
+  });
+
+  it("shows a success toast and selects a newly created category", async () => {
+    const category = {
+      id: "cat-1",
+      shopId: "s1",
+      name: "Dry goods",
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    vi.mocked(listProducts).mockResolvedValue([]);
+    vi.mocked(createCategory).mockResolvedValue(category);
+
+    const user = userEvent.setup();
+    renderPage();
+
+    await user.click(
+      await screen.findByRole("button", { name: /add product/i }),
+    );
+    await user.type(screen.getByLabelText("New category name"), "Dry goods");
+    await user.click(screen.getByRole("button", { name: /^Add$/ }));
+
+    expect(await screen.findByRole("status")).toHaveTextContent("Category added.");
+    expect(screen.getByLabelText("Category")).toHaveValue("cat-1");
+  });
+
+  it("shows a toast when category creation fails", async () => {
+    vi.mocked(listProducts).mockResolvedValue([]);
+    vi.mocked(createCategory).mockRejectedValue(new Error("save failed"));
+
+    const user = userEvent.setup();
+    renderPage();
+
+    await user.click(
+      await screen.findByRole("button", { name: /add product/i }),
+    );
+    await user.type(screen.getByLabelText("New category name"), "Dry goods");
+    await user.click(screen.getByRole("button", { name: /^Add$/ }));
+
+    expect(await screen.findByRole("status")).toHaveTextContent(
+      "Could not save. Please try again.",
+    );
   });
 });
