@@ -8,24 +8,12 @@ test_vps_ssh:
     - apk add --no-cache openssh-client
   script:
     - |
-      if [ -z "${SSH_PRIVATE_KEY:-}" ]; then
-        echo "ERROR: SSH_PRIVATE_KEY is missing or unavailable"
-        exit 1
-      elif [ ! -f "$SSH_PRIVATE_KEY" ]; then
-        echo "ERROR: SSH_PRIVATE_KEY is not a file; check its GitLab variable type"
-        exit 1
-      else
-        echo "SSH_PRIVATE_KEY file is available"
-      fi
-
-      if [ -z "${SSH_KNOWN_HOSTS:-}" ]; then
-        echo "ERROR: SSH_KNOWN_HOSTS is missing or unavailable"
-        exit 1
-      elif [ ! -f "$SSH_KNOWN_HOSTS" ]; then
-        echo "ERROR: SSH_KNOWN_HOSTS is not a file"
-        exit 1
-      else
-        echo "SSH_KNOWN_HOSTS file is available"
-      fi
+      ssh \
+        -i "$SSH_PRIVATE_KEY" \
+        -o IdentitiesOnly=yes \
+        -o StrictHostKeyChecking=yes \
+        -o UserKnownHostsFile="$SSH_KNOWN_HOSTS" \
+        "$VPS_USER@$VPS_HOST" \
+        'whoami && test -w /var/www/shop-management && echo "Shop deployment directory is writable"'
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
