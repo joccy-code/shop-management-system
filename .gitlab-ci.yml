@@ -126,13 +126,38 @@ deploy_vps:
         /tmp/shop-management.tgz \
         "$VPS_USER@$VPS_HOST:/tmp/shop-management.tgz"
     - |
+      umask 077
+      : > /tmp/shop-ci-env
+      if [ -n "${PROD_DATABASE_URL:-}" ]; then
+        printf 'DATABASE_URL=%s\n' "$PROD_DATABASE_URL" >> /tmp/shop-ci-env
+      elif [ -n "${DATABASE_URL:-}" ]; then
+        printf 'DATABASE_URL=%s\n' "$DATABASE_URL" >> /tmp/shop-ci-env
+      fi
+      if [ -n "${SESSION_SECRET:-}" ]; then
+        printf 'SESSION_SECRET=%s\n' "$SESSION_SECRET" >> /tmp/shop-ci-env
+      fi
+      if [ -n "${COOKIE_SECURE:-}" ]; then
+        printf 'COOKIE_SECURE=%s\n' "$COOKIE_SECURE" >> /tmp/shop-ci-env
+      fi
+      if [ -n "${CORS_ORIGIN:-}" ]; then
+        printf 'CORS_ORIGIN=%s\n' "$CORS_ORIGIN" >> /tmp/shop-ci-env
+      fi
+    - |
+      scp \
+        -i "$HOME/.ssh/id_deploy" \
+        -o IdentitiesOnly=yes \
+        -o StrictHostKeyChecking=yes \
+        -o UserKnownHostsFile="$HOME/.ssh/known_hosts" \
+        /tmp/shop-ci-env \
+        "$VPS_USER@$VPS_HOST:/tmp/shop-ci-env"
+    - |
       ssh \
         -i "$HOME/.ssh/id_deploy" \
         -o IdentitiesOnly=yes \
         -o StrictHostKeyChecking=yes \
         -o UserKnownHostsFile="$HOME/.ssh/known_hosts" \
         "$VPS_USER@$VPS_HOST" \
-        'tar -xzf /tmp/shop-management.tgz -C /var/www/shop-management && rm -f /tmp/shop-management.tgz && bash /var/www/shop-management/scripts/remote-deploy.sh'
+        'tar -xzf /tmp/shop-management.tgz -C /var/www/shop-management && rm -f /tmp/shop-management.tgz && CI_ENV_FILE=/tmp/shop-ci-env bash /var/www/shop-management/scripts/remote-deploy.sh'
   environment:
     name: production
     url: http://$VPS_HOST

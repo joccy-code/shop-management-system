@@ -11,14 +11,28 @@ READY_URL="${READY_URL:-http://127.0.0.1:3001/api/v1/ready}"
 
 cd "$APP_DIR"
 
-if [ ! -f "$BACKEND_DIR/.env" ]; then
-  echo "ERROR: $BACKEND_DIR/.env is missing on the VPS."
-  echo "Copy backend/.env.example to backend/.env, set production values, then rerun the pipeline."
-  exit 1
+CI_ENV_FILE="${CI_ENV_FILE:-/tmp/shop-ci-env}"
+
+if ! command -v openssl >/dev/null && ! command -v python3 >/dev/null && ! command -v node >/dev/null; then
+  if sudo -n true >/dev/null 2>&1 && [ -f "$APP_DIR/scripts/bootstrap-vps.sh" ]; then
+    echo "No secret generator found; running VPS bootstrap"
+    sudo -n bash "$APP_DIR/scripts/bootstrap-vps.sh"
+  fi
+fi
+
+bash "$APP_DIR/scripts/ensure-backend-env.sh" "$BACKEND_DIR" "$CI_ENV_FILE"
+rm -f "$CI_ENV_FILE"
+
+if ! command -v node >/dev/null || ! command -v npm >/dev/null; then
+  if sudo -n true >/dev/null 2>&1 && [ -f "$APP_DIR/scripts/bootstrap-vps.sh" ]; then
+    echo "Node.js is missing; running VPS bootstrap"
+    sudo -n bash "$APP_DIR/scripts/bootstrap-vps.sh"
+  fi
 fi
 
 if ! command -v node >/dev/null || ! command -v npm >/dev/null; then
   echo "ERROR: Node.js and npm are required on the VPS (Node 20+)."
+  echo "Run: sudo bash $APP_DIR/scripts/bootstrap-vps.sh"
   exit 1
 fi
 
@@ -33,6 +47,27 @@ npm ci --include=dev
 
 echo "Generating Prisma client and applying migrations"
 npm run prisma:generate -w backend
+
+create_local_database_if_needed() {
+  local db_url
+  db_url="$(grep -E '^DATABASE_URL=' "$BACKEND_DIR/.env" | head -n 1 | cut -d= -f2- || true)"
+  case "$db_url" in
+    *127.0.0.1:5432/shop_manager*|*localhost:5432/shop_manager*) ;;
+    *) return 0 ;;
+  esac
+  if ! command -v psql >/dev/null && ! sudo -n -u postgres true >/dev/null 2>&1; then
+    return 0
+  fi
+  echo "Ensuring local PostgreSQL database shop_manager exists"
+  if sudo -n -u postgres psql -tAc "SELECT 1 FROM pg_database WHERE datname='shop_manager'" 2>/dev/null | grep -q 1; then
+    return 0
+  fi
+  sudo -n -u postgres createdb shop_manager >/dev/null 2>&1 || \
+    sudo -n -u postgres psql -c "CREATE DATABASE shop_manager;" >/dev/null 2>&1 || \
+    createdb shop_manager >/dev/null 2>&1 || true
+}
+
+create_local_database_if_needed
 npm run prisma:migrate:deploy -w backend
 
 echo "Building backend and frontend"
