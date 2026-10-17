@@ -1,5 +1,17 @@
 stages:
+  - test
   - verify
+
+verify_application:
+  stage: test
+  image: node:22-alpine
+  script:
+    - npm ci --include=dev
+    - npm run typecheck
+    - npm test
+    - npm run build
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'  
 
 # Confirms the deploy key can sign in to the VPS and write the app directory.
 # GitLab File variables are mode 0666 and often omit the final newline.
