@@ -1,60 +1,90 @@
-# Deployment notes (Ubuntu VPS + Nginx)
+# Deployment notes (Ubuntu VPS + Nginx + GitLab CI)
 
-These notes prepare Shop Manager for a later Ubuntu VPS deployment.
-Do **not** deploy or change a live server without explicit authorization.
+Shop Manager is built on GitLab CI and copied to `/var/www/shop-management` over SSH.
 
-## Target shape
+## Pipeline
 
-1. Build the frontend static files with Vite.
-2. Run the Express API with Node.js behind a process manager such as systemd or PM2.
-3. Put Nginx in front for HTTPS and reverse proxy.
-4. Keep PostgreSQL on the same VPS or a managed database.
-5. Proxy `/api` to the backend so the browser talks to one origin.
+`.gitlab-ci.yml` runs on `main`:
 
-## Suggested Nginx sketch
+1. **verify_application** — install, generate Prisma, migrate a CI Postgres, typecheck, test, and build.
+2. **test_vps_ssh** — confirm the deploy key can sign in and write `/var/www/shop-management`.
+3. **deploy_vps** — copy the repo to the VPS and run `scripts/remote-deploy.sh`.
 
-```nginx
-server {
-  listen 443 ssl http2;
-  server_name example.com;
+Required GitLab CI/CD variables (Settings → CI/CD → Variables):
 
-  # ssl_certificate and ssl_certificate_key go here
+| Variable | Type | Purpose |
+| --- | --- | --- |
+| `SSH_PRIVATE_KEY` | File | Private deploy key. Include the BEGIN/END lines and a trailing newline. |
+| `SSH_KNOWN_HOSTS` | File | Output of `ssh-keyscan -H <VPS_HOST>`. |
+| `VPS_USER` | Variable | SSH user that owns `/var/www/shop-management`. |
+| `VPS_HOST` | Variable | VPS hostname or IP. |
 
-  root /var/www/shop-manager/frontend/dist;
-  index index.html;
+The public half of `SSH_PRIVATE_KEY` must be in `~/.ssh/authorized_keys` on the VPS.
 
-  location /api/ {
-    proxy_pass http://127.0.0.1:3001;
-    proxy_http_version 1.1;
-    proxy_set_header Host $host;
-    proxy_set_header X-Real-IP $remote_addr;
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_set_header X-Forwarded-Proto $scheme;
-  }
+## One-time VPS bootstrap
 
-  location / {
-    try_files $uri $uri/ /index.html;
-  }
-}
+Copy the app once (or let the first pipeline copy fail on a missing `.env`, then finish this):
+
+```bash
+sudo bash /var/www/shop-management/scripts/bootstrap-vps.sh
 ```
 
-## Production environment checklist
+That installs Node 22 and Nginx if needed, writes a systemd unit, and enables the Nginx site. Then edit `/var/www/shop-management/backend/.env`:
 
-- Set `NODE_ENV=production`.
-- Use a strong unique `SESSION_SECRET` (32+ characters).
-- Set `COOKIE_SECURE=true` and prefer `COOKIE_SAME_SITE=lax` or `strict`.
-- Point `DATABASE_URL` at PostgreSQL over a private network when possible.
-- Keep `CORS_ORIGIN` empty when Nginx serves UI and API on the same origin.
-- Never commit `.env` files or database passwords.
-- Run `npm run prisma:migrate:deploy -w backend` before starting the API.
-- Confirm `GET /api/v1/health` and `GET /api/v1/ready` after boot.
-- The API trusts one proxy hop (`trust proxy`) so Nginx can supply the client IP used by login rate limits.
-- Serve `frontend/dist` as static files, including `sw.js`, `manifest.webmanifest`, and `icons/`. The service worker must stay same-origin and must not be configured to cache `/api`.
+- `NODE_ENV=production`
+- `DATABASE_URL` pointing at PostgreSQL on this host
+- unique `SESSION_SECRET` (32+ characters; bootstrap generates one)
+- `COOKIE_SECURE=true` only after HTTPS is enabled
+- `CORS_ORIGIN` empty so the UI and API share one origin
+- `APP_CURRENCY=ETB` and `APP_TIMEZONE=Africa/Addis_Ababa` unless you change them on purpose
+
+Create the database if it does not exist:
+
+```bash
+sudo -u postgres psql -c "CREATE DATABASE shop_manager;"
+```
+
+Rerun the GitLab pipeline, or:
+
+```bash
+sudo -u "$USER" bash /var/www/shop-management/scripts/remote-deploy.sh
+```
+
+## Runtime shape
+
+1. Vite writes static files to `frontend/dist`.
+2. Express listens on `127.0.0.1:3001` (systemd unit `shop-manager`, or a pid file if systemd is not available).
+3. Nginx serves `frontend/dist` and proxies `/api/` to the API.
+4. PostgreSQL stays on the VPS or a private managed database.
+5. Run `npm run prisma:migrate:deploy -w backend` before the API starts (the deploy script does this).
+
+Confirm after boot:
+
+- `GET /api/v1/health`
+- `GET /api/v1/ready`
+
+The API trusts one proxy hop so Nginx can supply the client IP used by login rate limits. Serve `sw.js`, `manifest.webmanifest`, and `icons/` from the same origin. The service worker must not cache `/api`.
+
+## Nginx (installed by bootstrap)
+
+See `deploy/nginx-shop-manager.conf`. Add TLS with certbot when a domain points at the VPS:
+
+```bash
+sudo apt-get install -y certbot python3-certbot-nginx
+sudo certbot --nginx -d example.com
+```
+
+Then set `COOKIE_SECURE=true` in `backend/.env` and restart:
+
+```bash
+sudo systemctl restart shop-manager
+```
 
 ## Security reminders
 
-- Terminate TLS at Nginx.
+- Terminate TLS at Nginx when a domain is ready.
 - Restrict database access to the application host.
+- Never commit `.env` files or database passwords. The pipeline excludes them from the tarball.
 - Rotate secrets if they leak.
 - Do not log passwords, session cookies, or payment references in plain text.
 - Subscription billing and payment-provider webhooks are later work and must use server-side verification.

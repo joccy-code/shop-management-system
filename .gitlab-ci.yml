@@ -1,11 +1,11 @@
 stages:
+  - test
   - verify
+  - deploy
 
-# Confirms the deploy key can sign in to the VPS and write the app directory.
 # GitLab File variables are mode 0666 and often omit the final newline.
 # OpenSSH 10 reports that as "error in libcrypto" or "bad permissions".
-test_vps_ssh:
-  stage: verify
+.setup_ssh:
   image: alpine:3.22
   before_script:
     - apk add --no-cache openssh-client
@@ -33,6 +33,48 @@ test_vps_ssh:
         echo "ERROR: SSH_PRIVATE_KEY is not a usable private key. Paste the private key, including the BEGIN and END lines, into the File variable."
         exit 1
       fi
+
+verify_application:
+  stage: test
+  image: node:22
+  services:
+    - name: postgres:16
+      alias: postgres
+  variables:
+    NODE_ENV: test
+    POSTGRES_DB: shop_manager_test
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: postgres
+    POSTGRES_HOST_AUTH_METHOD: trust
+    DATABASE_URL: postgresql://postgres:postgres@postgres:5432/shop_manager_test?schema=public
+    SESSION_SECRET: ci-session-secret-at-least-32-characters
+  cache:
+    key:
+      files:
+        - package-lock.json
+    paths:
+      - .npm/
+  before_script:
+    - apt-get update
+    - apt-get install -y postgresql-client
+    - |
+      for i in $(seq 1 30); do
+        pg_isready -h postgres -U postgres && break
+        sleep 2
+      done
+    - npm ci --cache .npm --prefer-offline --include=dev
+    - npm run prisma:generate -w backend
+    - npm run prisma:migrate:deploy -w backend
+  script:
+    - npm run typecheck
+    - npm test
+    - npm run build
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+
+test_vps_ssh:
+  extends: .setup_ssh
+  stage: verify
   script:
     - |
       ssh \
@@ -42,5 +84,57 @@ test_vps_ssh:
         -o UserKnownHostsFile="$HOME/.ssh/known_hosts" \
         "$VPS_USER@$VPS_HOST" \
         'whoami && test -w /var/www/shop-management && echo "Shop deployment directory is writable"'
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+
+deploy_vps:
+  extends: .setup_ssh
+  stage: deploy
+  resource_group: production
+  needs:
+    - verify_application
+    - test_vps_ssh
+  before_script:
+    - !reference [.setup_ssh, before_script]
+    - apk add --no-cache tar
+  script:
+    - |
+      tar \
+        --exclude='./.git' \
+        --exclude='./node_modules' \
+        --exclude='./backend/node_modules' \
+        --exclude='./frontend/node_modules' \
+        --exclude='./backend/.env' \
+        --exclude='./frontend/.env' \
+        --exclude='./backend/dist' \
+        --exclude='./frontend/dist' \
+        -czf /tmp/shop-management.tgz .
+    - |
+      ssh \
+        -i "$HOME/.ssh/id_deploy" \
+        -o IdentitiesOnly=yes \
+        -o StrictHostKeyChecking=yes \
+        -o UserKnownHostsFile="$HOME/.ssh/known_hosts" \
+        "$VPS_USER@$VPS_HOST" \
+        'mkdir -p /var/www/shop-management /tmp'
+    - |
+      scp \
+        -i "$HOME/.ssh/id_deploy" \
+        -o IdentitiesOnly=yes \
+        -o StrictHostKeyChecking=yes \
+        -o UserKnownHostsFile="$HOME/.ssh/known_hosts" \
+        /tmp/shop-management.tgz \
+        "$VPS_USER@$VPS_HOST:/tmp/shop-management.tgz"
+    - |
+      ssh \
+        -i "$HOME/.ssh/id_deploy" \
+        -o IdentitiesOnly=yes \
+        -o StrictHostKeyChecking=yes \
+        -o UserKnownHostsFile="$HOME/.ssh/known_hosts" \
+        "$VPS_USER@$VPS_HOST" \
+        'tar -xzf /tmp/shop-management.tgz -C /var/www/shop-management && rm -f /tmp/shop-management.tgz && bash /var/www/shop-management/scripts/remote-deploy.sh'
+  environment:
+    name: production
+    url: http://$VPS_HOST
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
