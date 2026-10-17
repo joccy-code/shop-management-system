@@ -1,0 +1,18 @@
+[Unit]
+Description=Shop Manager API
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+Type=simple
+WorkingDirectory=/var/www/shop-management/backend
+Environment=NODE_ENV=production
+EnvironmentFile=/var/www/shop-management/backend/.env
+ExecStart=/usr/bin/node dist/index.js
+Restart=on-failure
+RestartSec=3
+User=DEPLOY_USER
+Group=DEPLOY_GROUP
+
+[Install]
+WantedBy=multi-user.target
