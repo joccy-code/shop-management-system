@@ -19,17 +19,25 @@ Required GitLab CI/CD variables (Settings → CI/CD → Variables):
 | `VPS_USER` | Variable | SSH user that owns `/var/www/shop-management`. |
 | `VPS_HOST` | Variable | VPS hostname or IP. |
 
-The public half of `SSH_PRIVATE_KEY` must be in `~/.ssh/authorized_keys` on the VPS.
+Optional GitLab variables used only on first deploy, when the VPS has no `backend/.env` yet:
+
+| Variable | Type | Purpose |
+| --- | --- | --- |
+| `PROD_DATABASE_URL` or `DATABASE_URL` | Variable | PostgreSQL URL. If omitted, the first deploy uses `postgresql://postgres:1234@127.0.0.1:5432/shop_manager?schema=public`. Prefer `PROD_DATABASE_URL` so it does not collide with the test job. |
+| `SESSION_SECRET` | Variable | 32+ character secret. If omitted, the first deploy generates one on the VPS. |
+| `COOKIE_SECURE` | Variable | Set `true` after HTTPS is enabled. Defaults to `false`. |
+
+The public half of `SSH_PRIVATE_KEY` must be in `~/.ssh/authorized_keys` on the VPS. The pipeline never overwrites an existing `backend/.env`.
 
 ## One-time VPS bootstrap
 
-Copy the app once (or let the first pipeline copy fail on a missing `.env`, then finish this):
+The first successful deploy creates `backend/.env` if it is missing. To install Node, Nginx, and the systemd unit:
 
 ```bash
 sudo bash /var/www/shop-management/scripts/bootstrap-vps.sh
 ```
 
-That installs Node 22 and Nginx if needed, writes a systemd unit, and enables the Nginx site. Then edit `/var/www/shop-management/backend/.env`:
+That installs Node 22 and Nginx if needed, writes a systemd unit, and enables the Nginx site. Then edit `/var/www/shop-management/backend/.env` if you need different production values:
 
 - `NODE_ENV=production`
 - `DATABASE_URL` pointing at PostgreSQL on this host
